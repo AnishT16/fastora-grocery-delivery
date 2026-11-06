@@ -1,0 +1,420 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* --- 1. Core Layout & Animations --- */
+    .fade-in { animation: fadeIn 0.6s ease-in-out; }
+    @keyframes fadeIn { 
+        0% { opacity: 0; transform: translateY(15px); } 
+        100% { opacity: 1; transform: translateY(0); } 
+    }
+    
+    /* --- 2. Blinkit-Style Grid Categories --- */
+    .category-grid-container { 
+        padding: 20px; 
+        background: white; 
+        margin-bottom: 12px; 
+        border-radius: 0 0 20px 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
+    }
+    .category-grid { 
+        display: grid; 
+        grid-template-columns: repeat(4, 1fr); 
+        gap: 20px 10px; 
+    }
+    .cat-item { 
+        text-align: center; 
+        text-decoration: none; 
+        color: var(--text); 
+        cursor: pointer; 
+        transition: transform 0.2s ease; 
+    }
+    .cat-item:hover { transform: scale(1.08); }
+    .cat-icon-wrapper { 
+        background: #f4f6f9; 
+        width: 65px; 
+        height: 65px; 
+        border-radius: 18px; 
+        display: flex; 
+        justify-content: center; 
+        align-items: center; 
+        font-size: 30px; 
+        margin: 0 auto 8px; 
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .cat-text { font-size: 11.5px; font-weight: 800; color: #444; line-height: 1.2; }
+
+    /* --- 3. Scrollable Promotional Banners --- */
+    .banner-container { 
+        display: flex; 
+        overflow-x: auto; 
+        padding: 10px 20px 20px; 
+        gap: 15px; 
+        scrollbar-width: none; 
+    }
+    .banner-container::-webkit-scrollbar { display: none; }
+    .banner { 
+        min-width: 290px; 
+        height: 150px; 
+        border-radius: 22px; 
+        padding: 22px; 
+        position: relative; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        box-shadow: 0 6px 18px rgba(0,0,0,0.06); 
+        cursor: pointer; 
+        transition: transform 0.3s ease;
+    }
+    .banner:hover { transform: translateY(-5px); }
+    .banner-purple { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); }
+    .banner-orange { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+    .banner-green { background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%); }
+    .banner-title { font-size: 26px; font-weight: 900; color: #111; margin: 0 0 6px 0; }
+    .banner-subtitle { font-size: 14px; font-weight: 700; color: rgba(0,0,0,0.65); }
+    .banner-offer { 
+        background: #ff4757; 
+        color: white; 
+        position: absolute; 
+        top: 15px; 
+        right: 15px; 
+        padding: 5px 12px; 
+        border-radius: 10px; 
+        font-size: 11px; 
+        font-weight: 900; 
+        letter-spacing: 0.5px;
+    }
+
+    /* --- 4. Section Headers --- */
+    .section-header { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        margin: 25px 20px 12px; 
+    }
+    .section-title { font-size: 19px; font-weight: 900; color: #111; letter-spacing: -0.3px; }
+    .see-all { font-size: 14px; font-weight: 800; color: var(--accent); text-decoration: none; cursor: pointer; }
+    
+    /* --- 5. Horizontal Product Sliders --- */
+    .products-row { 
+        display: flex; 
+        overflow-x: auto; 
+        padding: 5px 20px 25px; 
+        gap: 16px; 
+        scrollbar-width: none; 
+    }
+    .products-row::-webkit-scrollbar { display: none; }
+    
+    /* --- 6. Detailed Product Cards --- */
+    .product-card { 
+        min-width: 155px; 
+        max-width: 155px;
+        background: white; 
+        padding: 12px; 
+        border-radius: 20px; 
+        box-shadow: 0 5px 16px rgba(0,0,0,0.04); 
+        transition: all 0.3s ease; 
+        position: relative; 
+    }
+    .product-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: 0 12px 28px rgba(0,0,0,0.09); 
+    }
+    
+    .discount-tag { 
+        position: absolute; 
+        top: -6px; 
+        left: -6px; 
+        background: #4a69bd; 
+        color: white; 
+        font-size: 11px; 
+        font-weight: 900; 
+        padding: 5px 10px; 
+        border-radius: 8px; 
+        box-shadow: 0 3px 8px rgba(74, 105, 189, 0.4); 
+        z-index: 2;
+    }
+    .product-img { 
+        width: 100%; 
+        height: 120px; 
+        background: #f8f9fa; 
+        border-radius: 14px; 
+        object-fit: cover; 
+        margin-bottom: 10px; 
+    }
+    
+    .delivery-timer { 
+        display: flex; 
+        align-items: center; 
+        gap: 5px; 
+        font-size: 10px; 
+        font-weight: 800; 
+        color: #555; 
+        background: #f1f3f6; 
+        padding: 4px 8px; 
+        border-radius: 8px; 
+        width: max-content; 
+        margin-bottom: 10px; 
+    }
+    
+    .product-name { 
+        font-size: 13.5px; 
+        font-weight: 700; 
+        color: #222; 
+        margin: 0 0 8px 0; 
+        line-height: 1.4; 
+        height: 38px; 
+        overflow: hidden; 
+        display: -webkit-box; 
+        -webkit-line-clamp: 2; 
+        -webkit-box-orient: vertical; 
+    }
+    .product-weight { font-size: 12px; color: #888; font-weight: 700; margin-bottom: 15px; }
+    
+    .product-bottom { 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+    .price-box { display: flex; flex-direction: column; }
+    .current-price { font-size: 16px; font-weight: 900; color: #111; }
+    .mrp-price { font-size: 12px; font-weight: 600; color: #aaa; text-decoration: line-through; }
+    
+    .btn-add { 
+        background: #f0fdf4; 
+        color: var(--accent); 
+        border: 2px solid var(--accent); 
+        padding: 7px 18px; 
+        border-radius: 10px; 
+        font-weight: 900; 
+        font-size: 13px; 
+        cursor: pointer; 
+        transition: all 0.2s ease; 
+        text-transform: uppercase; 
+    }
+    .btn-add:hover { 
+        background: var(--accent); 
+        color: white; 
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fade-in">
+
+    <!-- ================= CATEGORY GRID ================= -->
+    <div class="category-grid-container">
+        <div class="category-grid">
+            <a href="electronics/" class="cat-item"><div class="cat-icon-wrapper">🎧</div><div class="cat-text">Electronics</div></a>
+            <a href="beauty/" class="cat-item"><div class="cat-icon-wrapper">💄</div><div class="cat-text">Beauty</div></a>
+            <a href="pharmacy/" class="cat-item"><div class="cat-icon-wrapper">💊</div><div class="cat-text">Pharmacy</div></a>
+            <a href="kids/" class="cat-item"><div class="cat-icon-wrapper">🧸</div><div class="cat-text">Kids</div></a>
+            <a href="gifting/" class="cat-item"><div class="cat-icon-wrapper">🎁</div><div class="cat-text">Gifting</div></a>
+            <a href="grocery/" class="cat-item"><div class="cat-icon-wrapper">🌾</div><div class="cat-text">Grocery</div></a>
+            <a href="fruits/" class="cat-item"><div class="cat-icon-wrapper">🍎</div><div class="cat-text">Fruits</div></a>
+            <a href="meat/" class="cat-item"><div class="cat-icon-wrapper">🍗</div><div class="cat-text">Meat</div></a>
+        </div>
+    </div>
+
+    <!-- ================= PROMO BANNERS ================= -->
+    <div class="banner-container">
+        <div class="banner banner-purple">
+            <div class="banner-offer">20% OFF</div>
+            <h2 class="banner-title">Snack<br>Fiesta</h2>
+            <div class="banner-subtitle">Up to ₹100 cashback</div>
+        </div>
+        <div class="banner banner-orange">
+            <div class="banner-offer">FREE DELIVERY</div>
+            <h2 class="banner-title">Morning<br>Essentials</h2>
+            <div class="banner-subtitle">Milk, Bread & Eggs</div>
+        </div>
+    </div>
+
+    <!-- ================= SECTION 1: DAIRY ================= -->
+    <div class="section-header">
+        <div class="section-title">Dairy & Breakfast</div>
+        <a href="#" class="see-all">See All ➔</a>
+    </div>
+    <div class="products-row">
+        <!-- Product 1 -->
+        <div class="product-card">
+            <img src="{% static '' %}" alt="Milk" class="product-img">
+            <div class="delivery-timer">⏱️ 12 MINS</div>
+            <h3 class="product-name">Amul Taaza Toned Fresh Milk</h3>
+            <div class="product-weight">500 ml</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹27</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 2 -->
+        <div class="product-card">
+            <div class="discount-tag">10% OFF</div>
+            <img src="{% static 'asset/img1.jpg' %}" alt="Bread" class="product-img">
+            <div class="delivery-timer">⏱️ 12 MINS</div>
+            <h3 class="product-name">Harvest Gold 100% Atta Bread</h3>
+            <div class="product-weight">400 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹45</span>
+                    <span class="mrp-price">₹50</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 3 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img2.jpg' %}" alt="Eggs" class="product-img">
+            <div class="delivery-timer">⏱️ 14 MINS</div>
+            <h3 class="product-name">Farm Fresh White Eggs (6 pcs)</h3>
+            <div class="product-weight">6 Pieces</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹60</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 4 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img3.jpg' %}" alt="Butter" class="product-img">
+            <div class="delivery-timer">⏱️ 14 MINS</div>
+            <h3 class="product-name">Amul Pasteurized Butter</h3>
+            <div class="product-weight">100 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹58</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= MID-PAGE PROMO ================= -->
+    <div class="banner-container">
+        <div class="banner banner-green" style="min-width: 90%;">
+            <div class="banner-offer">SPECIAL</div>
+            <h2 class="banner-title">Pharmacy<br>Delivered Fast</h2>
+            <div class="banner-subtitle">Medicines at your doorstep</div>
+        </div>
+    </div>
+
+    <!-- ================= SECTION 2: SNACKS ================= -->
+    <div class="section-header">
+        <div class="section-title">Snacks & Munchies</div>
+        <a href="#" class="see-all">See All ➔</a>
+    </div>
+    <div class="products-row">
+        <!-- Product 5 -->
+        <div class="product-card">
+            <div class="discount-tag">15% OFF</div>
+            <img src="{% static 'asset/img2.jpg' %}" alt="Chips" class="product-img">
+            <div class="delivery-timer">⏱️ 10 MINS</div>
+            <h3 class="product-name">Lay's India's Magic Masala Chips</h3>
+            <div class="product-weight">90 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹42</span>
+                    <span class="mrp-price">₹50</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 6 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img1.jpg' %}" alt="Ketchup" class="product-img">
+            <div class="delivery-timer">⏱️ 10 MINS</div>
+            <h3 class="product-name">Kissan Fresh Tomato Ketchup</h3>
+            <div class="product-weight">850 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹93</span>
+                    <span class="mrp-price">₹120</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 7 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img3.jpg' %}" alt="Coke" class="product-img">
+            <div class="delivery-timer">⏱️ 15 MINS</div>
+            <h3 class="product-name">Coca-Cola Original Soft Drink</h3>
+            <div class="product-weight">750 ml</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹40</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 8 -->
+        <div class="product-card">
+            <div class="discount-tag">BUY 1 GET 1</div>
+            <img src="{% static 'asset/img2.jpg' %}" alt="Cookies" class="product-img">
+            <div class="delivery-timer">⏱️ 15 MINS</div>
+            <h3 class="product-name">Britannia Good Day Cookies</h3>
+            <div class="product-weight">250 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹35</span>
+                    <span class="mrp-price">₹40</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= SECTION 3: HOUSEHOLD ================= -->
+    <div class="section-header">
+        <div class="section-title">Household Needs</div>
+        <a href="#" class="see-all">See All ➔</a>
+    </div>
+    <div class="products-row">
+        <!-- Product 9 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img1.jpg' %}" alt="Detergent" class="product-img">
+            <div class="delivery-timer">⏱️ 16 MINS</div>
+            <h3 class="product-name">Surf Excel Easy Wash Detergent</h3>
+            <div class="product-weight">1 kg</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹130</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 10 -->
+        <div class="product-card">
+            <div class="discount-tag">5% OFF</div>
+            <img src="{% static 'asset/img3.jpg' %}" alt="Cleaner" class="product-img">
+            <div class="delivery-timer">⏱️ 16 MINS</div>
+            <h3 class="product-name">Lizol Disinfectant Surface Cleaner</h3>
+            <div class="product-weight">500 ml</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹99</span>
+                    <span class="mrp-price">₹105</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+        <!-- Product 11 -->
+        <div class="product-card">
+            <img src="{% static 'asset/img2.jpg' %}" alt="Soap" class="product-img">
+            <div class="delivery-timer">⏱️ 11 MINS</div>
+            <h3 class="product-name">Dettol Original Bathing Soap</h3>
+            <div class="product-weight">125 g</div>
+            <div class="product-bottom">
+                <div class="price-box">
+                    <span class="current-price">₹45</span>
+                </div>
+                <button class="btn-add">ADD</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock content %}

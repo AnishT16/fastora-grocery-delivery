@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Search Results</h2>
+
+{% if query %}
+    <h3>You searched for: "{{ query }}"</h3>
+
+    {% if results %}
+        <ul>
+            {% for product in results %}
+                <li>{{ product }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h3>Product not found</h3>
+    {% endif %}
+
+{% else %}
+    <h3>Enter a product name</h3>
+{% endif %}
+
+{% endblock %}

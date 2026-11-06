@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fastora</title>
+    <style>
+        /* Modern App Theme Variables */
+        :root { --primary: #0a2540; --primary-light: #1a4a7b; --accent: #00d68f; --bg: #f8f9fa; --text: #333; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; background-color: var(--bg); padding-bottom: 85px; color: var(--text); }
+        
+        /* Premium Gradient Header */
+        .header { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; padding: 25px 20px 45px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(10, 37, 64, 0.2); }
+        .brand { font-size: 28px; font-weight: 900; margin: 0; letter-spacing: 0.5px; color: white; }
+        .brand span { color: var(--accent); }
+        
+        .delivery-info { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
+        .time-badge { background: rgba(0, 214, 143, 0.2); color: var(--accent); padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: 700; border: 1px solid rgba(0, 214, 143, 0.4); }
+        .location { font-size: 13px; opacity: 0.95; font-weight: 500; }
+        
+        /* Glassmorphism Profile Avatar */
+        .profile-pic { width: 45px; height: 45px; background: rgba(255,255,255,0.15); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.2); cursor: pointer; }
+
+        /* Floating Search Box */
+        .search-container { margin: -25px 20px 15px; background: white; padding: 15px 20px; border-radius: 18px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); display: flex; align-items: center; transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .search-container:focus-within { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+        .search-container input { border: none; outline: none; width: 100%; margin-left: 12px; font-size: 15px; font-family: inherit; color: #333; }
+
+        /* Modern Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0 10px 0; box-shadow: 0 -5px 25px rgba(0,0,0,0.04); z-index: 100; border-top-left-radius: 25px; border-top-right-radius: 25px; }
+        .nav-item { text-align: center; color: #999; font-size: 12px; text-decoration: none; font-weight: 600; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: color 0.2s ease; }
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 24px; transition: transform 0.2s ease; }
+        .nav-item:hover .nav-icon { transform: translateY(-2px); }
+
+        /* Responsive Design for Mobile Devices */
+        .container{
+    padding:20px;
+}
+
+.products{
+    display:flex;
+    gap:20px;
+    flex-wrap:wrap;
+    margin-bottom:30px;
+}
+
+.card{
+    width:180px;
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.card img{
+    width:100%;
+}
+
+.card button{
+    background:#00c853;
+    color:white;
+    border:none;
+    padding:8px 15px;
+    border-radius:5px;
+    cursor:pointer;
+}
+
+.banner{
+    background:#c5f27a;
+    padding:40px;
+    border-radius:15px;
+    margin:30px 0;
+}
+
+.banner{
+    background:#c8f169;
+    padding:40px;
+    border-radius:15px;
+    margin:30px 0;
+}
+
+.banner h1{
+    margin:0;
+}
+
+.banner p{
+    margin-top:10px;
+}
+ 
+/* kids */
+
+
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    
+    <div class="header">
+        <div>
+            <h1 class="brand">Fast<span>ora</span></h1>
+            <div class="delivery-info">
+                <div class="time-badge">14 mins</div>
+                <div class="location">Pune, MH ▾</div>
+            </div>
+        </div>
+        <div class="profile-pic">👤</div>
+    </div>
+
+    <form method="GET" action="{% url 'search' %}">
+    <div class="search-container">
+        <span style="font-size: 18px;">🔍</span>
+        <input
+            type="text"
+            name="q"
+            placeholder="Search for groceries, snacks...">
+    </div>
+    </form>
+
+    {% block content %}
+    {% endblock %}
+
+    <div class="bottom-nav">
+        <a href="index.html" class="nav-item active"><div class="nav-icon">🏠</div>Home</a>
+        <a href="categories.html" class="nav-item"><div class="nav-icon">🗂️</div>Categories</a>
+        <a href="orders.html" class="nav-item"><div class="nav-icon">📋</div>Orders</a>
+        <a href="profile.html" class="nav-item"><div class="nav-icon">👤</div>Profile</a>
+    </div>
+
+</body>
+</html>
