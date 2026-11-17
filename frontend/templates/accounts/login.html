@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 440px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <h2 style="margin-top: 0; color: #0a2540; font-size: 24px; text-align: center;">Welcome Back</h2>
+    <p style="color: #666; font-size: 14px; text-align: center; margin-bottom: 25px;">Log in to your Fastora account</p>
+
+    {% if form.errors %}
+        <div style="background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px;">
+            Please enter a correct username and password.
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Username</label>
+            <input type="text" name="username" required autofocus
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 22px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Password</label>
+            <input type="password" name="password" required
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <button type="submit"
+                style="width: 100%; background: #00d68f; color: #0a2540; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;">
+            Log In
+        </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+        Don't have an account? 
+        <a href="{% url 'register' %}" style="color: #0a2540; font-weight: 700; text-decoration: none;">Register</a>
+    </div>
+</div>
+{% endblock %}
+

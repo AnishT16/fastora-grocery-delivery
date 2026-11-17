@@ -1,111 +1,66 @@
 from django.shortcuts import render
+from apps.products.models import Product, Category
+
 
 def indexfile(request):
-    return render(request, 'index.html')
+    categories = Category.objects.filter(is_active=True)
+    products = Product.objects.filter(is_active=True).select_related('category')
+    return render(request, 'index.html', {'categories': categories, 'products': products})
+
 
 def beauty(request):
-    return render(request, 'beauty.html')
+    products = Product.objects.filter(category__slug='beauty', is_active=True)
+    return render(request, 'products/beauty.html', {'products': products})
+
 
 def electronics(request):
-    return render(request, 'electronics.html')
+    products = Product.objects.filter(category__slug='electronics', is_active=True)
+    return render(request, 'products/electronics.html', {'products': products})
+
 
 def gifting(request):
-    return render(request, 'gifting.html')
+    products = Product.objects.filter(category__slug='gifting', is_active=True)
+    return render(request, 'products/gifting.html', {'products': products})
+
 
 def kids(request):
-    return render(request, 'kids.html')
+    products = Product.objects.filter(category__slug='kids', is_active=True)
+    return render(request, 'products/kids.html', {'products': products})
+
 
 def pharmacy(request):
-    return render(request, 'pharmacy.html')
-    
+    products = Product.objects.filter(category__slug='pharmacy', is_active=True)
+    return render(request, 'products/pharmacy.html', {'products': products})
+
+
 def meat(request):
-    return render(request, 'meat.html')    
+    products = Product.objects.filter(category__slug='meat', is_active=True)
+    return render(request, 'products/meat.html', {'products': products})
+
 
 def fruits(request):
-    return render(request, 'fruits.html')  
+    products = Product.objects.filter(category__slug='fruits', is_active=True)
+    return render(request, 'products/fruits.html', {'products': products})
+
 
 def Grocery(request):
-    return render(request, 'Grocery.html')      
+    products = Product.objects.filter(category__slug='groceries', is_active=True)
+    return render(request, 'products/Grocery.html', {'products': products})
+
 
 def profile(request):
-    return render(request, 'profile.html')
+    return render(request, 'accounts/profile.html')
 
-from django.shortcuts import render
 
 def search(request):
-    query = request.GET.get('q', '')
-
-    products = [
-        # Electronics
-        "Samsung Galaxy M35",
-        "HP Laptop",
-        "Boat Headphones",
-        "Noise Smart Watch",
-        "Gaming Mouse",
-        "Bluetooth Speaker",
-
-        # Beauty
-        "Himalaya Face Wash",
-        "Dove Shampoo",
-        "Nivea Soft Cream",
-        "Lakme Lipstick",
-        "Perfume",
-
-        # Pharmacy
-        "Paracetamol 650",
-        "Vitamin C Tablets",
-        "Dettol Sanitizer",
-        "Band Aid Pack",
-        "Digital Thermometer",
-
-        # Grocery
-        "Amul Milk",
-        "Brown Bread",
-        "Butter",
-        "Paneer",
-        "Basmati Rice",
-        "Aashirvaad Atta",
-        "Toor Dal",
-
-        # Fruits
-        "Apple",
-        "Banana",
-        "Orange",
-        "Mango",
-        "Grapes",
-        "Kiwi",
-        "Pineapple",
-        "Pomegranate",
-
-        # Meat
-        "Chicken Curry Cut",
-        "Chicken Breast",
-        "Mutton Curry Cut",
-        "Fresh Fish",
-        "Prawns",
-        "Eggs",
-
-        # Kids
-        "Teddy Bear",
-        "Remote Control Car",
-        "Building Blocks",
-        "School Bag",
-        "Color Box",
-
-        # Gifting
-        "Chocolate Hamper",
-        "Dry Fruit Box",
-        "Red Roses Bouquet",
-        "Gift Mug",
-        "Photo Frame"
-    ]
-
+    query = request.GET.get('q', '').strip()
     results = []
 
     if query:
-        for product in products:
-            if query.lower() in product.lower():
-                results.append(product)
+        results = Product.objects.filter(
+            name__icontains=query,
+            is_active=True
+        ).select_related('category')
 
     return render(request, 'search.html', {
         'query': query,

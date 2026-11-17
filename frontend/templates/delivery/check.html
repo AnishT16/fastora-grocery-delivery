@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 25px auto; padding: 10px 20px;">
+    
+    <!-- Title Banner -->
+    <div style="background: linear-gradient(135deg, #0a2540, #1a4a7b); color: white; padding: 25px; border-radius: 18px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(10,37,64,0.15);">
+        <div style="display: inline-block; background: rgba(0, 214, 143, 0.2); color: #00d68f; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 700; margin-bottom: 10px;">
+            FAST-COMMERCE SIGNATURE FEATURE
+        </div>
+        <h1 style="margin: 0 0 8px; font-size: 26px;">Smart Delivery Economics Checker</h1>
+        <p style="margin: 0; opacity: 0.9; font-size: 14px; line-height: 1.5;">
+            Compare how Fastora makes small grocery baskets affordable by pooling neighbourhood orders into scheduled routes.
+        </p>
+    </div>
+
+    <!-- Interactive Simulator Controls -->
+    <div style="background: white; padding: 22px 25px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 25px;">
+        <h3 style="margin-top: 0; color: #0a2540; font-size: 17px;">Test Your Order & Location</h3>
+        <form method="GET" action="{% url 'delivery_check' %}" style="display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+            <div style="flex: 1; min-width: 180px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px;">Postal Code</label>
+                <input type="text" name="postal_code" value="{{ postal_code }}" required
+                       style="width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+            </div>
+            <div style="flex: 1; min-width: 180px;">
+                <label style="display: block; font-size: 13px; font-weight: 600; color: #555; margin-bottom: 6px;">Basket Value (₹)</label>
+                <input type="number" step="10" name="subtotal" value="{{ subtotal }}" required
+                       style="width: 100%; box-sizing: border-box; padding: 10px 14px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+            </div>
+            <button type="submit"
+                    style="background: #00d68f; color: #0a2540; border: none; font-weight: 700; padding: 11px 22px; border-radius: 8px; font-size: 14px; cursor: pointer;">
+                Calculate Quotes
+            </button>
+        </form>
+    </div>
+
+    {% if error_msg %}
+        <div style="background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; padding: 16px 20px; border-radius: 12px; margin-bottom: 25px;">
+            <strong>⚠️ Not Serviceable:</strong> {{ error_msg }}
+        </div>
+    {% else %}
+        <!-- Zone Info Header -->
+        <div style="background: #f4f8fb; border-left: 4px solid #00d68f; padding: 12px 18px; border-radius: 8px; margin-bottom: 25px; font-size: 14px; color: #333;">
+            📍 <strong>Fulfillment Hub:</strong> {{ zone.name }} | <strong>Service Radius:</strong> {{ zone.radius_km }} km | <strong>Customer Distance:</strong> {{ quote_express.distance_km }} km
+        </div>
+
+        <!-- Comparison Side-by-Side Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px;">
+            
+            <!-- Card 1: Express -->
+            <div style="background: white; border: 2px solid #eee; border-radius: 16px; padding: 22px; position: relative;">
+                <div style="color: #777; font-size: 13px; font-weight: 700; text-transform: uppercase;">Standard Option</div>
+                <h2 style="margin: 5px 0 12px; font-size: 22px; color: #0a2540;">Express Delivery</h2>
+                <p style="margin: 0 0 18px; color: #666; font-size: 13px;">⚡ Delivered in 15-20 minutes by dedicated single rider trip.</p>
+
+                <div style="border-top: 1px solid #f0f0f0; padding-top: 15px; font-size: 14px; line-height: 1.9;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Base Delivery Fee:</span>
+                        <span>₹{{ quote_express.base_fee|floatformat:2 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Distance Fee ({{ quote_express.distance_km }} km):</span>
+                        <span>+₹{{ quote_express.distance_fee|floatformat:2 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #888;">
+                        <span>Pooling Discount:</span>
+                        <span>₹0.00</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; color: #0a2540; border-top: 2px solid #f0f0f0; margin-top: 10px; padding-top: 10px;">
+                        <span>Total Delivery:</span>
+                        <span>₹{{ quote_express.final_fee|floatformat:2 }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Smart Pooled -->
+            <div style="background: white; border: 2px solid #00d68f; border-radius: 16px; padding: 22px; position: relative; box-shadow: 0 4px 15px rgba(0, 214, 143, 0.12);">
+                <div style="position: absolute; top: -12px; right: 20px; background: #00d68f; color: #0a2540; padding: 3px 12px; border-radius: 20px; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                    RECOMMENDED (SMART SAVINGS)
+                </div>
+                <div style="color: #009663; font-size: 13px; font-weight: 700; text-transform: uppercase;">Smart Delivery Economics</div>
+                <h2 style="margin: 5px 0 12px; font-size: 22px; color: #0a2540;">Scheduled Pooled</h2>
+                <p style="margin: 0 0 18px; color: #666; font-size: 13px;">🤝 Grouped with neighbour orders in selected delivery window.</p>
+
+                <div style="border-top: 1px solid #f0f0f0; padding-top: 15px; font-size: 14px; line-height: 1.9;">
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Base Delivery Fee:</span>
+                        <span>₹{{ quote_pooled.base_fee|floatformat:2 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span>Distance Fee ({{ quote_pooled.distance_km }} km):</span>
+                        <span>+₹{{ quote_pooled.distance_fee|floatformat:2 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #009663; font-weight: 700;">
+                        <span>Neighbourhood Pooling Subsidy:</span>
+                        <span>-₹{{ quote_pooled.pooled_discount|floatformat:2 }}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; color: #009663; border-top: 2px solid #f0f0f0; margin-top: 10px; padding-top: 10px;">
+                        <span>Total Delivery:</span>
+                        <span>₹{{ quote_pooled.final_fee|floatformat:2 }}</span>
+                    </div>
+                </div>
+
+                {% if savings > 0 %}
+                <div style="margin-top: 15px; background: #e6f7ef; color: #007a4d; padding: 8px 12px; border-radius: 8px; font-size: 13px; font-weight: 700; text-align: center;">
+                    🎉 You save ₹{{ savings|floatformat:2 }} on this order!
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+
+        <!-- Available Scheduled Windows -->
+        <div style="background: white; padding: 22px 25px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 25px;">
+            <h3 style="margin-top: 0; color: #0a2540; font-size: 17px;">Available Delivery Windows for Tomorrow</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
+                {% for slot in slots %}
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; text-align: center;">
+                        <div style="font-weight: 800; color: #0a2540; font-size: 15px;">{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</div>
+                        <div style="font-size: 12px; color: #666; margin-top: 4px;">Capacity: {{ slot.current_bookings }}/{{ slot.max_capacity }} booked</div>
+                        <div style="display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 700; color: #007a4d; background: #e6f7ef; padding: 2px 8px; border-radius: 10px;">
+                            {{ slot.status }}
+                        </div>
+                    </div>
+                {% empty %}
+                    <p style="color: #888;">No slots scheduled for tomorrow yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Feature Concept Box -->
+    <div style="background: #fffbe6; border: 1px solid #ffe58f; padding: 18px 22px; border-radius: 14px; font-size: 13.5px; color: #614700; line-height: 1.6;">
+        <h4 style="margin: 0 0 6px; color: #873800;">How This Works</h4>
+        In traditional quick-commerce, fulfilling small orders as separate trips incurs high delivery cost. Fastora's <strong>Smart Delivery Economics</strong> groups orders from the same neighbourhood into scheduled time slots. Because multiple customer orders are fulfilled in one continuous delivery route, the delivery cost drops, allowing us to pass discounts directly to customers.
+    </div>
+
+</div>
+{% endblock %}

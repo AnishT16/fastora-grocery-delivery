@@ -1,14 +1,46 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<div class="container" style="max-width: 500px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    {% if request.user.is_authenticated %}
+        <div style="text-align: center; margin-bottom: 25px;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: #0a2540; color: #00d68f; font-size: 28px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                {{ request.user.username|make_list|first|upper }}
+            </div>
+            <h2 style="margin: 0; color: #0a2540;">{{ request.user.username }}</h2>
+            <p style="margin: 5px 0 0; color: #777; font-size: 14px;">{{ request.user.get_role_display }}</p>
+        </div>
 
-<h1>My Profile</h1>
+        <div style="border-top: 1px solid #f0f0f0; padding-top: 20px; font-size: 14px; line-height: 2;">
+            <div><strong>Email:</strong> {{ request.user.email|default:'Not provided' }}</div>
+            <div><strong>Phone:</strong> {{ request.user.phone|default:'Not provided' }}</div>
+            <div><strong>Member Since:</strong> {{ request.user.date_joined|date:"M d, Y" }}</div>
+        </div>
 
-<img src="https://via.placeholder.com/150" alt="Profile Photo">
+        <div style="margin-top: 30px; display: flex; gap: 10px;">
+            <a href="{% url 'logout' %}" style="flex: 1; text-align: center; background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none;">
+                Log Out
+            </a>
+            {% if request.user.is_staff %}
+                <a href="/admin/" style="flex: 1; text-align: center; background: #0a2540; color: white; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none;">
+                    Admin Panel
+                </a>
+            {% endif %}
+        </div>
 
-<p><strong>Name:</strong> Anish Thorat</p>
-<p><strong>Course:</strong> B.Tech CSE</p>
-<p><strong>Skills:</strong> Python, Django, HTML, CSS, MySQL</p>
-<p><strong>Email:</strong> anish@example.com</p>
-
+    {% else %}
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 48px; margin-bottom: 15px;">👤</div>
+            <h2 style="margin: 0 0 10px; color: #0a2540;">You are not logged in</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Log in or create a new account to place grocery orders and track deliveries.</p>
+            
+            <a href="{% url 'login' %}" style="display: block; background: #00d68f; color: #0a2540; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none; margin-bottom: 10px;">
+                Log In
+            </a>
+            <a href="{% url 'register' %}" style="display: block; background: #f0f4f8; color: #0a2540; padding: 12px; border-radius: 10px; font-weight: 600; text-decoration: none;">
+                Create an Account
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

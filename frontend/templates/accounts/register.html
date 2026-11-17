@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container" style="max-width: 440px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+    <h2 style="margin-top: 0; color: #0a2540; font-size: 24px; text-align: center;">Create Account</h2>
+    <p style="color: #666; font-size: 14px; text-align: center; margin-bottom: 25px;">Join Fastora for smart delivery and savings</p>
+
+    {% if form.errors %}
+        <div style="background: #fff2f0; border: 1px solid #ffccc7; color: #cf1322; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 18px;">
+            {% for field in form %}
+                {% for error in field.errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            {% endfor %}
+            {% for error in form.non_field_errors %}
+                <div>{{ error }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'register' %}">
+        {% csrf_token %}
+
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Username</label>
+            <input type="text" name="username" value="{{ form.username.value|default:'' }}" required
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Email</label>
+            <input type="email" name="email" value="{{ form.email.value|default:'' }}" required
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Phone Number (optional)</label>
+            <input type="text" name="phone" value="{{ form.phone.value|default:'' }}"
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Password</label>
+            <input type="password" name="password1" required
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <div style="margin-bottom: 22px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px;">Confirm Password</label>
+            <input type="password" name="password2" required
+                   style="width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; outline: none;">
+        </div>
+
+        <button type="submit"
+                style="width: 100%; background: #00d68f; color: #0a2540; border: none; padding: 14px; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer;">
+            Sign Up
+        </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 20px; font-size: 14px; color: #666;">
+        Already have an account? 
+        <a href="{% url 'login' %}" style="color: #0a2540; font-weight: 700; text-decoration: none;">Log In</a>
+    </div>
+</div>
+{% endblock %}
+

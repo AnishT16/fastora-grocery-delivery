@@ -99,13 +99,21 @@
     
     <div class="header">
         <div>
-            <h1 class="brand">Fast<span>ora</span></h1>
+            <h1 class="brand"><a href="{% url 'indexfile' %}" style="text-decoration: none; color: inherit;">Fast<span>ora</span></a></h1>
             <div class="delivery-info">
                 <div class="time-badge">14 mins</div>
                 <div class="location">Pune, MH ▾</div>
             </div>
         </div>
-        <div class="profile-pic">👤</div>
+        <a href="{% url 'profile' %}" style="text-decoration: none; color: inherit;">
+            <div class="profile-pic" title="{% if request.user.is_authenticated %}{{ request.user.username }}{% else %}Login / Profile{% endif %}">
+                {% if request.user.is_authenticated %}
+                    <span style="font-weight: 700; font-size: 16px;">{{ request.user.username|make_list|first|upper }}</span>
+                {% else %}
+                    👤
+                {% endif %}
+            </div>
+        </a>
     </div>
 
     <form method="GET" action="{% url 'search' %}">
@@ -118,14 +126,24 @@
     </div>
     </form>
 
+    {% if messages %}
+    <div style="max-width: 600px; margin: 10px auto; padding: 0 20px;">
+        {% for message in messages %}
+            <div style="padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 14px; {% if message.tags == 'success' %}background: #e6f7ef; color: #007a4d; border: 1px solid #b7ebd3;{% else %}background: #e6f4ff; color: #0958d9; border: 1px solid #91caff;{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}
     {% endblock %}
 
     <div class="bottom-nav">
-        <a href="index.html" class="nav-item active"><div class="nav-icon">🏠</div>Home</a>
-        <a href="categories.html" class="nav-item"><div class="nav-icon">🗂️</div>Categories</a>
-        <a href="orders.html" class="nav-item"><div class="nav-icon">📋</div>Orders</a>
-        <a href="profile.html" class="nav-item"><div class="nav-icon">👤</div>Profile</a>
+        <a href="{% url 'indexfile' %}" class="nav-item active"><div class="nav-icon">🏠</div>Home</a>
+        <a href="{% url 'Grocery' %}" class="nav-item"><div class="nav-icon">🗂️</div>Categories</a>
+        <a href="{% url 'delivery_check' %}" class="nav-item"><div class="nav-icon">⚡</div>Smart Delivery</a>
+        <a href="{% url 'profile' %}" class="nav-item"><div class="nav-icon">👤</div>Profile</a>
     </div>
 
 </body>
