@@ -1,4 +1,4 @@
-from apps.delivery.models import DeliveryZone
+from ..models import DeliveryZone
 from common.exceptions import ZoneNotServiceableError
 
 

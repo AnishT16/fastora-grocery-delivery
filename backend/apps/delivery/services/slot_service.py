@@ -1,6 +1,6 @@
 from django.db import transaction, models
 from django.utils import timezone
-from apps.delivery.models import DeliverySlot
+from ..models import DeliverySlot
 from common.exceptions import SlotNotAvailableError
 
 

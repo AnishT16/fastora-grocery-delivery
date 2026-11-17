@@ -2,9 +2,9 @@ from decimal import Decimal
 from django.utils import timezone
 from django.db.models import F
 
-from apps.delivery.models import DeliverySlot, DeliveryFeeRule
-from apps.delivery.services.zone_service import get_serviceable_zone
-from apps.memberships.services import is_member_active, apply_membership_benefits
+from ..models import DeliverySlot, DeliveryFeeRule
+from .zone_service import get_serviceable_zone
+from ...memberships.services import is_member_active, apply_membership_benefits
 from common.exceptions import ZoneNotServiceableError
 
 

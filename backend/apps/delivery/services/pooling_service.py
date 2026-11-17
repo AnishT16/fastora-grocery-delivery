@@ -4,7 +4,7 @@ from django.utils import timezone
 
 from apps.accounts.models import User
 from apps.orders.models import Order
-from apps.delivery.models import DeliveryZone, DeliveryBatch, PooledOrder
+from ..models import DeliveryZone, DeliveryBatch, PooledOrder
 from common.exceptions import InvalidBatchOperationError, DeliveryPartnerNotFoundError
 
 
