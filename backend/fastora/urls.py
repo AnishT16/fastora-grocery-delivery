@@ -1,21 +1,12 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import (
-    indexfile,
-    beauty,
-    electronics,
-    gifting,
-    kids,
-    pharmacy,
-    meat,
-    fruits,
-    Grocery,
-    profile,
-    search,
-)
+from . import views
 
 urlpatterns = [
+    # Admin
     path('admin/', admin.site.urls),
+
+    # App APIs and views
     path('api/', include('apps.accounts.urls_api')),
     path('api/', include('apps.products.urls')),
     path('api/admin/', include('apps.delivery.urls_admin')),
@@ -28,15 +19,17 @@ urlpatterns = [
     path('api/inventory/', include('apps.inventory.urls')),
     path('delivery/', include('apps.delivery.urls')),
     path('accounts/', include('apps.accounts.urls')),
-    path('', indexfile, name='indexfile'),
-    path('beauty/', beauty, name='beauty'),
-    path('electronics/', electronics, name='electronics'),
-    path('gifting/', gifting, name='gifting'),
-    path('kids/', kids, name='kids'),
-    path('pharmacy/', pharmacy, name='pharmacy'),
-    path('meat/', meat, name='meat'),
-    path('fruits/', fruits, name='fruits'),
-    path('Grocery/', Grocery, name='Grocery'),
-    path('profile/', profile, name='profile'),
-    path('search/', search, name='search'),
+
+    # Frontend pages
+    path('', views.indexfile, name='indexfile'),
+    path('beauty/', views.beauty, name='beauty'),
+    path('electronics/', views.electronics, name='electronics'),
+    path('gifting/', views.gifting, name='gifting'),
+    path('kids/', views.kids, name='kids'),
+    path('pharmacy/', views.pharmacy, name='pharmacy'),
+    path('meat/', views.meat, name='meat'),
+    path('fruits/', views.fruits, name='fruits'),
+    path('Grocery/', views.Grocery, name='Grocery'),
+    path('profile/', views.profile, name='profile'),
+    path('search/', views.search, name='search'),
 ]
