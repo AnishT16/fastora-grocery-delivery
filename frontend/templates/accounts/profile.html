@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% block title %}My Profile | Fastora{% endblock %}
+
 {% block content %}
 <div class="container" style="max-width: 500px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     {% if request.user.is_authenticated %}
@@ -11,13 +13,29 @@
             <p style="margin: 5px 0 0; color: #777; font-size: 14px;">{{ request.user.get_role_display }}</p>
         </div>
 
-        <div style="border-top: 1px solid #f0f0f0; padding-top: 20px; font-size: 14px; line-height: 2;">
+        <div style="border-top: 1px solid #f0f0f0; padding-top: 16px; font-size: 14px; line-height: 2;">
             <div><strong>Email:</strong> {{ request.user.email|default:'Not provided' }}</div>
             <div><strong>Phone:</strong> {{ request.user.phone|default:'Not provided' }}</div>
             <div><strong>Member Since:</strong> {{ request.user.date_joined|date:"M d, Y" }}</div>
         </div>
 
-        <div style="margin-top: 30px; display: flex; gap: 10px;">
+        <!-- Dashboard Shortcuts -->
+        <div style="margin-top: 22px; border-top: 1px solid #f0f0f0; padding-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <a href="{% url 'orders' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>📦 My Order History</span>
+                <span>➔</span>
+            </a>
+            <a href="{% url 'cart' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>🛒 View Shopping Cart</span>
+                <span>➔</span>
+            </a>
+            <a href="{% url 'delivery_check' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>⚡ Smart Delivery Economics</span>
+                <span>➔</span>
+            </a>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; gap: 10px;">
             <a href="{% url 'logout' %}" style="flex: 1; text-align: center; background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none;">
                 Log Out
             </a>

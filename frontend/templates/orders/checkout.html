@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout | Fastora{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 920px; margin: 25px auto;">
+    
+    <div style="margin-bottom: 22px;">
+        <h2 style="margin: 0 0 5px; color: var(--primary); font-size: 24px;">⚡ Secure Checkout</h2>
+        <p style="margin: 0; color: #666; font-size: 14px;">Select your delivery address, schedule, and payment preference.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 340px; gap: 25px; align-items: start;">
+        
+        <!-- Left Column: Checkout Steps -->
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            
+            <!-- Step 1: Delivery Address -->
+            <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">1</div>
+                    <h3 style="margin: 0; font-size: 17px; color: var(--primary);">Delivery Address</h3>
+                </div>
+
+                {% if addresses %}
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                    {% for addr in addresses %}
+                    <label style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid {% if forloop.first %}var(--accent){% else %}#e2e8f0{% endif %}; border-radius: 12px; cursor: pointer; background: {% if forloop.first %}#f0fdf4{% else %}white{% endif %};">
+                        <input type="radio" name="selected_address_id" value="{{ addr.id }}" {% if forloop.first %}checked{% endif %} onchange="onAddressChange(this)" style="margin-top: 3px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px; color: #111;">
+                                {{ addr.title|default:'Home' }}
+                                {% if addr.is_default %}<span style="font-size: 11px; background: #e2e8f0; padding: 2px 6px; border-radius: 4px; margin-left: 6px;">DEFAULT</span>{% endif %}
+                            </div>
+                            <div style="font-size: 13px; color: #555; margin-top: 3px;">{{ addr.street_address }}, {{ addr.city }}, {{ addr.state }} - <strong>{{ addr.postal_code }}</strong></div>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Option to enter new address -->
+                <div style="border-top: 1px dashed #e2e8f0; padding-top: 15px; margin-top: 10px;">
+                    <details {% if not addresses %}open{% endif %}>
+                        <summary style="font-size: 13.5px; font-weight: 700; color: var(--primary); cursor: pointer;">
+                            + Deliver to a different or new address
+                        </summary>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px;">
+                            <div style="grid-column: 1 / -1;">
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px;">Street Address / Flat / Building</label>
+                                <input type="text" id="new_street" placeholder="e.g. Flat 402, Green Valley Apts, Kothrud" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px;">City</label>
+                                <input type="text" id="new_city" value="Pune" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 4px;">Postal Code (PIN)</label>
+                                <input type="text" id="new_postal_code" value="411038" onchange="fetchDeliveryQuotes()" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 13px;">
+                            </div>
+                        </div>
+                    </details>
+                </div>
+            </div>
+
+            <!-- Step 2: Delivery Speed & Smart Pooling -->
+            <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">2</div>
+                    <h3 style="margin: 0; font-size: 17px; color: var(--primary);">Delivery Option</h3>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <!-- Scheduled Micro-Delivery (Pooled) -->
+                    <label id="opt-pooled-card" style="border: 2px solid var(--accent); background: #f0fdf4; border-radius: 14px; padding: 16px; cursor: pointer; position: relative;">
+                        <input type="radio" name="delivery_option" value="SCHEDULED_POOLED" checked onchange="onDeliveryOptionChange(this)" style="position: absolute; top: 14px; right: 14px;">
+                        <div style="display: inline-block; background: var(--accent); color: var(--primary); font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px;">RECOMMENDED • SAVE UP TO ₹40</div>
+                        <h4 style="margin: 0 0 4px; font-size: 15px; color: #111;">Neighbourhood Pooled</h4>
+                        <p style="margin: 0; font-size: 12.5px; color: #555; line-height: 1.4;">Batched with nearby orders in your area. Greener & lowest delivery fee.</p>
+                        <div id="pooled-fee-label" style="font-size: 14px; font-weight: 800; color: #007a4d; margin-top: 10px;">Fee: ₹10.00</div>
+                    </label>
+
+                    <!-- Express Delivery -->
+                    <label id="opt-express-card" style="border: 2px solid #e2e8f0; background: white; border-radius: 14px; padding: 16px; cursor: pointer; position: relative;">
+                        <input type="radio" name="delivery_option" value="EXPRESS" onchange="onDeliveryOptionChange(this)" style="position: absolute; top: 14px; right: 14px;">
+                        <div style="display: inline-block; background: #e2e8f0; color: #444; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px;">LIGHTNING FAST</div>
+                        <h4 style="margin: 0 0 4px; font-size: 15px; color: #111;">Express 15 Mins</h4>
+                        <p style="margin: 0; font-size: 12.5px; color: #555; line-height: 1.4;">Direct dedicated rider dispatched from hub straight to your doorstep.</p>
+                        <div id="express-fee-label" style="font-size: 14px; font-weight: 800; color: #111; margin-top: 10px;">Fee: ₹35.00</div>
+                    </label>
+                </div>
+
+                <!-- Slot Selector for Pooled Delivery -->
+                <div id="slot-picker-container" style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
+                    <label style="display: block; font-size: 13.5px; font-weight: 700; color: #333; margin-bottom: 8px;">
+                        Select Tomorrow's Delivery Slot:
+                    </label>
+                    {% if slots %}
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+                        {% for s in slots %}
+                        <label style="border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; background: white; font-size: 13px;">
+                            <input type="radio" name="selected_slot_id" value="{{ s.id }}" {% if forloop.first %}checked{% endif %}>
+                            <div style="font-weight: 700; color: #111; margin-top: 3px;">{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</div>
+                            <div style="font-size: 11px; color: #007a4d; margin-top: 2px;">{{ s.available_capacity }} slots left</div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div style="padding: 10px 14px; background: #fef3c7; border-radius: 8px; font-size: 12.5px; color: #92400e;">
+                        Default morning batch slot (09:00 - 11:00 AM) will be assigned.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Step 3: Payment Method -->
+            <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">3</div>
+                    <h3 style="margin: 0; font-size: 17px; color: var(--primary);">Payment Preference</h3>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid var(--accent); background: #f0fdf4; border-radius: 12px; cursor: pointer;">
+                        <input type="radio" name="payment_method" value="COD" checked>
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px; color: #111;">💵 Cash / UPI on Delivery (COD)</div>
+                            <div style="font-size: 12px; color: #555;">Pay via cash or any UPI app (GPay, PhonePe, Paytm) when order arrives</div>
+                        </div>
+                    </label>
+
+                    <label style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1.5px solid #e2e8f0; background: white; border-radius: 12px; cursor: pointer;">
+                        <input type="radio" name="payment_method" value="ONLINE">
+                        <div>
+                            <div style="font-weight: 700; font-size: 14px; color: #111;">💳 Instant Online Payment / UPI</div>
+                            <div style="font-size: 12px; color: #555;">100% secure instant checkout</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Order Summary & Place Order -->
+        <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); position: sticky; top: 20px;">
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 17px; margin-bottom: 16px;">Order Summary</h3>
+
+            <div style="max-height: 200px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid #f2f2f2; padding-bottom: 10px;">
+                {% for item in cart.items.all %}
+                <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 8px;">
+                    <span style="color: #444; flex: 1; padding-right: 10px;">{{ item.quantity }}x {{ item.product.name }}</span>
+                    <span style="font-weight: 700; color: #111;">₹{{ item.total_price }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
+                <span>Subtotal ({{ cart.total_items }} items)</span>
+                <span id="summary-subtotal" style="font-weight: 700; color: #111;">₹{{ cart.subtotal }}</span>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
+                <span>Delivery Fee</span>
+                <span id="summary-delivery-fee" style="font-weight: 700; color: #007a4d;">₹10.00</span>
+            </div>
+
+            <div id="summary-savings-row" style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: #007a4d;">
+                <span>⚡ Pooling Savings</span>
+                <span id="summary-savings">-₹25.00</span>
+            </div>
+
+            <div style="border-top: 1px dashed #ddd; margin: 15px 0; padding-top: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: var(--primary);">
+                <span>Total Due</span>
+                <span id="summary-total-due" style="color: #007a4d;">₹{{ cart.subtotal }}</span>
+            </div>
+
+            <button id="btn-place-order" onclick="submitOrder()" style="width: 100%; background: var(--accent); color: var(--primary); font-weight: 900; font-size: 16px; border: none; padding: 15px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,214,143,0.35); transition: transform 0.2s;">
+                Place Order Now ➔
+            </button>
+
+            <div id="checkout-error" style="display: none; margin-top: 12px; padding: 10px; background: #fff1f0; border: 1px solid #ffa39e; color: #cf1322; border-radius: 8px; font-size: 13px;"></div>
+
+            <div style="margin-top: 16px; font-size: 11.5px; color: #777; text-align: center; line-height: 1.4;">
+                🛡️ Safe & contactless delivery guaranteed by Fastora Pune fulfillment.
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    let cartSubtotal = parseFloat("{{ cart.subtotal|default:'0' }}");
+    let currentDeliveryFee = 10.00;
+
+    function onDeliveryOptionChange(radio) {
+        const isPooled = radio.value === 'SCHEDULED_POOLED';
+        const pooledCard = document.getElementById('opt-pooled-card');
+        const expressCard = document.getElementById('opt-express-card');
+        const slotContainer = document.getElementById('slot-picker-container');
+
+        if (isPooled) {
+            pooledCard.style.borderColor = 'var(--accent)';
+            pooledCard.style.background = '#f0fdf4';
+            expressCard.style.borderColor = '#e2e8f0';
+            expressCard.style.background = 'white';
+            if (slotContainer) slotContainer.style.display = 'block';
+            currentDeliveryFee = 10.00;
+            document.getElementById('summary-savings-row').style.display = 'flex';
+        } else {
+            expressCard.style.borderColor = 'var(--primary)';
+            expressCard.style.background = '#f8fafc';
+            pooledCard.style.borderColor = '#e2e8f0';
+            pooledCard.style.background = 'white';
+            if (slotContainer) slotContainer.style.display = 'none';
+            currentDeliveryFee = 35.00;
+            document.getElementById('summary-savings-row').style.display = 'none';
+        }
+
+        updateTotals();
+    }
+
+    function updateTotals() {
+        const total = cartSubtotal + currentDeliveryFee;
+        document.getElementById('summary-delivery-fee').textContent = `₹${currentDeliveryFee.toFixed(2)}`;
+        document.getElementById('summary-total-due').textContent = `₹${total.toFixed(2)}`;
+    }
+
+    async function submitOrder() {
+        const btn = document.getElementById('btn-place-order');
+        const errorDiv = document.getElementById('checkout-error');
+        errorDiv.style.display = 'none';
+        btn.disabled = true;
+        btn.textContent = 'Processing Order...';
+
+        // 1. Determine address
+        const selectedAddrRadio = document.querySelector('input[name="selected_address_id"]:checked');
+        let addressId = selectedAddrRadio ? parseInt(selectedAddrRadio.value) : null;
+        let rawAddress = null;
+
+        const streetInput = document.getElementById('new_street');
+        if (streetInput && streetInput.value.trim()) {
+            addressId = null;
+            rawAddress = {
+                street_address: streetInput.value.trim(),
+                city: document.getElementById('new_city').value.trim() || 'Pune',
+                postal_code: document.getElementById('new_postal_code').value.trim() || '411038',
+            };
+        }
+
+        if (!addressId && !rawAddress) {
+            errorDiv.textContent = 'Please select or enter a delivery address.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Place Order Now ➔';
+            return;
+        }
+
+        // 2. Delivery Option & Slot
+        const deliveryOptRadio = document.querySelector('input[name="delivery_option"]:checked');
+        const deliveryOption = deliveryOptRadio ? deliveryOptRadio.value : 'SCHEDULED_POOLED';
+
+        const slotRadio = document.querySelector('input[name="selected_slot_id"]:checked');
+        const slotId = (deliveryOption === 'SCHEDULED_POOLED' && slotRadio) ? parseInt(slotRadio.value) : null;
+
+        // 3. Payment Method
+        const paymentRadio = document.querySelector('input[name="payment_method"]:checked');
+        const paymentMethod = paymentRadio ? paymentRadio.value : 'COD';
+
+        const payload = {
+            delivery_option: deliveryOption,
+            payment_method: paymentMethod,
+        };
+
+        if (addressId) {
+            payload.address_id = addressId;
+        } else {
+            payload.address = rawAddress;
+        }
+
+        if (slotId) {
+            payload.slot_id = slotId;
+        }
+
+        try {
+            const res = await fetch('/api/orders/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json();
+            if (res.ok && data.id) {
+                showToast('Order confirmed!', '🎉');
+                window.location.href = `/orders/${data.id}/`;
+            } else {
+                let msg = 'Failed to place order.';
+                if (data.detail) msg = data.detail;
+                else if (data.error) msg = data.error;
+                else if (typeof data === 'object') {
+                    msg = Object.entries(data).map(([k, v]) => `${k}: ${v}`).join(' ');
+                }
+                errorDiv.textContent = msg;
+                errorDiv.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Place Order Now ➔';
+            }
+        } catch (err) {
+            console.error('Order submit error', err);
+            errorDiv.textContent = 'A network error occurred. Please try again.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Place Order Now ➔';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        updateTotals();
+    });
+</script>
+{% endblock %}

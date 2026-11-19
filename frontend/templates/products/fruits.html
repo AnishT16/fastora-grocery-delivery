@@ -1,116 +1,55 @@
 {% extends 'base.html' %}
 
+{% block title %}Fruits & Vegetables | Fastora{% endblock %}
+
 {% block content %}
-
-<div class="container">
-
-    <h2>Fresh Fruits</h2>
-
-    <div class="banner">
-        <h1>Fresh Fruits Delivered Daily 🍎🍌🍊</h1>
-        <p>Farm Fresh • Healthy • Affordable</p>
+<div class="container" style="max-width: 960px; margin: 20px auto;">
+    
+    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 25px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(245,158,11,0.2);">
+        <h1 style="margin: 0 0 6px; font-size: 26px;">🍎 Fruits & Vegetables</h1>
+        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Direct from farms to your kitchen. Crisp, fresh, and naturally packed.</p>
     </div>
 
-    <div class="products">
+    {% if products %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px;">
+        {% for prod in products %}
+        <div style="background: white; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="width: 100%; height: 120px; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden;">
+                    {% if prod.image %}
+                        <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% elif prod.image_url %}
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% else %}
+                        <span style="font-size: 40px;">🍎</span>
+                    {% endif %}
+                </div>
+                <div style="display: inline-block; font-size: 10.5px; font-weight: 800; color: #475569; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px;">
+                    ⚡ 10 MINS
+                </div>
+                <h4 style="margin: 0 0 4px; font-size: 14px; color: #1e293b; line-height: 1.35; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="{{ prod.name }}">
+                    {{ prod.name }}
+                </h4>
+                <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;">{{ prod.unit }}</p>
+            </div>
 
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Apple</h4>
-            <p>1 Kg</p>
-            <h3>₹180</h3>
-            <button>ADD</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px;">
+                <span style="font-size: 16px; font-weight: 900; color: var(--primary);">₹{{ prod.current_price|default:prod.price|default:'60.00' }}</span>
+                <button onclick="addToCart({{ prod.id }}, this)" style="background: #00d68f; color: #0a2540; border: none; font-weight: 800; font-size: 12.5px; padding: 7px 16px; border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                    ADD
+                </button>
+            </div>
         </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Banana</h4>
-            <p>12 Pieces</p>
-            <h3>₹60</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Orange</h4>
-            <p>1 Kg</p>
-            <h3>₹90</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Mango</h4>
-            <p>1 Kg</p>
-            <h3>₹150</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Grapes</h4>
-            <p>500 g</p>
-            <h3>₹80</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Pineapple</h4>
-            <p>1 Piece</p>
-            <h3>₹70</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Papaya</h4>
-            <p>1 Piece</p>
-            <h3>₹55</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Watermelon</h4>
-            <p>1 Piece</p>
-            <h3>₹120</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Kiwi</h4>
-            <p>Pack of 3</p>
-            <h3>₹150</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Pomegranate</h4>
-            <p>1 Kg</p>
-            <h3>₹170</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Strawberry</h4>
-            <p>250 g</p>
-            <h3>₹120</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120">
-            <h4>Guava</h4>
-            <p>1 Kg</p>
-            <h3>₹70</h3>
-            <button>ADD</button>
-        </div>
-
+        {% endfor %}
     </div>
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+        <div style="font-size: 48px; margin-bottom: 12px;">🍎</div>
+        <h3 style="margin: 0 0 8px; color: var(--primary);">No Fruits or Veggies in this Section</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Fresh morning produce arrives every day at 6 AM.</p>
+        <a href="{% url 'indexfile' %}" style="display: inline-block; background: var(--accent); color: var(--primary); font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none;">Explore Home</a>
+    </div>
+    {% endif %}
 
 </div>
-
 {% endblock %}

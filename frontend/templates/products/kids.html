@@ -1,168 +1,55 @@
 {% extends 'base.html' %}
 
+{% block title %}Baby & Kids | Fastora{% endblock %}
+
 {% block content %}
-
-<div class="container">
-
-    <h2>Kids Zone</h2>
-
-    <div class="banner">
-        <h1>Kids Store</h1>
-        <p>Toys, Games, Chocolates & School Essentials</p>
+<div class="container" style="max-width: 960px; margin: 20px auto;">
+    
+    <div style="background: linear-gradient(135deg, #14b8a6, #0f766e); color: white; padding: 25px; border-radius: 20px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(20,184,166,0.2);">
+        <h1 style="margin: 0 0 6px; font-size: 26px;">🧸 Baby & Kids Essentials</h1>
+        <p style="margin: 0; opacity: 0.9; font-size: 14px;">Diapers, baby wipes, feeding food, kids snacks, and stationery delivered in 10-15 mins.</p>
     </div>
 
-    <h2>Toys & Games</h2>
+    {% if products %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 18px;">
+        {% for prod in products %}
+        <div style="background: white; border-radius: 16px; padding: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+                <div style="width: 100%; height: 120px; background: #f8fafc; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden;">
+                    {% if prod.image %}
+                        <img src="{{ prod.image.url }}" alt="{{ prod.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% elif prod.image_url %}
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% else %}
+                        <span style="font-size: 40px;">🧸</span>
+                    {% endif %}
+                </div>
+                <div style="display: inline-block; font-size: 10.5px; font-weight: 800; color: #475569; background: #f1f5f9; padding: 2px 6px; border-radius: 4px; margin-bottom: 6px;">
+                    ⚡ 10 MINS
+                </div>
+                <h4 style="margin: 0 0 4px; font-size: 14px; color: #1e293b; line-height: 1.35; height: 38px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="{{ prod.name }}">
+                    {{ prod.name }}
+                </h4>
+                <p style="margin: 0 0 10px; font-size: 12px; color: #64748b;">{{ prod.unit }}</p>
+            </div>
 
-    <div class="products">
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Teddy Bear">
-            <h4>Teddy Bear</h4>
-            <p>Soft Toy</p>
-            <h3>₹399</h3>
-            <button>ADD</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto; padding-top: 8px;">
+                <span style="font-size: 16px; font-weight: 900; color: var(--primary);">₹{{ prod.current_price|default:prod.price|default:'199.00' }}</span>
+                <button onclick="addToCart({{ prod.id }}, this)" style="background: #00d68f; color: #0a2540; border: none; font-weight: 800; font-size: 12.5px; padding: 7px 16px; border-radius: 8px; cursor: pointer; transition: transform 0.2s;">
+                    ADD
+                </button>
+            </div>
         </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Remote Car">
-            <h4>Remote Control Car</h4>
-            <p>Rechargeable</p>
-            <h3>₹899</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Building Blocks">
-            <h4>Building Blocks</h4>
-            <p>100 Pieces</p>
-            <h3>₹599</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Puzzle">
-            <h4>Jigsaw Puzzle</h4>
-            <p>500 Pieces</p>
-            <h3>₹299</h3>
-            <button>ADD</button>
-        </div>
-
+        {% endfor %}
     </div>
-
-    <h2>Chocolates & Snacks</h2>
-
-    <div class="products">
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Dairy Milk">
-            <h4>Cadbury Dairy Milk</h4>
-            <p>100 g</p>
-            <h3>₹95</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="KitKat">
-            <h4>KitKat</h4>
-            <p>Pack of 4</p>
-            <h3>₹80</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Lollipop">
-            <h4>Chupa Chups</h4>
-            <p>Pack of 10</p>
-            <h3>₹120</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Cookies">
-            <h4>Oreo Cookies</h4>
-            <p>120 g</p>
-            <h3>₹40</h3>
-            <button>ADD</button>
-        </div>
-
+    {% else %}
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+        <div style="font-size: 48px; margin-bottom: 12px;">🧸</div>
+        <h3 style="margin: 0 0 8px; color: var(--primary);">No Baby & Kids Items in this Section</h3>
+        <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Fastora baby essentials will be updated soon.</p>
+        <a href="{% url 'indexfile' %}" style="display: inline-block; background: var(--accent); color: var(--primary); font-weight: 700; padding: 10px 22px; border-radius: 10px; text-decoration: none;">Explore Home</a>
     </div>
-
-    <h2>School Essentials</h2>
-
-    <div class="products">
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="School Bag">
-            <h4>School Bag</h4>
-            <p>Waterproof</p>
-            <h3>₹899</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Notebook">
-            <h4>Notebook Set</h4>
-            <p>Pack of 6</p>
-            <h3>₹250</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Color Box">
-            <h4>Color Box</h4>
-            <p>24 Shades</p>
-            <h3>₹199</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Pencil Box">
-            <h4>Pencil Box</h4>
-            <p>Cartoon Design</p>
-            <h3>₹149</h3>
-            <button>ADD</button>
-        </div>
-
-    </div>
-
-    <h2>Baby Care</h2>
-
-    <div class="products">
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Baby Shampoo">
-            <h4>Johnson's Shampoo</h4>
-            <p>200 ml</p>
-            <h3>₹175</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Baby Powder">
-            <h4>Baby Powder</h4>
-            <p>400 g</p>
-            <h3>₹220</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Diapers">
-            <h4>Baby Diapers</h4>
-            <p>Pack of 20</p>
-            <h3>₹499</h3>
-            <button>ADD</button>
-        </div>
-
-        <div class="card">
-            <img src="https://via.placeholder.com/120" alt="Baby Lotion">
-            <h4>Baby Lotion</h4>
-            <p>100 ml</p>
-            <h3>₹199</h3>
-            <button>ADD</button>
-        </div>
-
-    </div>
+    {% endif %}
 
 </div>
-
 {% endblock %}

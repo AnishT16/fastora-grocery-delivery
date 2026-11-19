@@ -20,7 +20,7 @@ urlpatterns = [
     path('delivery/', include('apps.delivery.urls')),
     path('accounts/', include('apps.accounts.urls')),
 
-    # Frontend pages
+    # Frontend Storefront & Category pages
     path('', views.indexfile, name='indexfile'),
     path('beauty/', views.beauty, name='beauty'),
     path('electronics/', views.electronics, name='electronics'),
@@ -32,4 +32,10 @@ urlpatterns = [
     path('Grocery/', views.Grocery, name='Grocery'),
     path('profile/', views.profile, name='profile'),
     path('search/', views.search, name='search'),
+
+    # Cart, Checkout & Orders
+    path('cart/', views.cart_view, name='cart'),
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('orders/', views.orders_view, name='orders'),
+    path('orders/<int:pk>/', views.order_detail_view, name='order_detail'),
 ]

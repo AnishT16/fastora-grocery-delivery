@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Order #{{ order.id }} | Fastora{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin: 25px auto;">
+    
+    <!-- Success Celebration Banner -->
+    <div style="background: linear-gradient(135deg, #0a2540, #1a4a7b); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 6px 20px rgba(10,37,64,0.15);">
+        <div style="width: 60px; height: 60px; background: rgba(0, 214, 143, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px; border: 2px solid var(--accent);">
+            ✓
+        </div>
+        <h2 style="margin: 0 0 8px; font-size: 26px;">Order #{{ order.id }} Confirmed!</h2>
+        <p style="margin: 0; opacity: 0.9; font-size: 14px;">
+            Thank you for shopping with Fastora. We're packing your essentials fresh from our dark store.
+        </p>
+    </div>
+
+    <!-- Status & Tracking Card -->
+    <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
+            <div>
+                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Delivery Mode</span>
+                <div style="font-weight: 800; font-size: 16px; color: var(--primary); margin-top: 2px;">
+                    {{ order.get_delivery_option_display }}
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Status</span>
+                <div style="margin-top: 2px;">
+                    <span style="background: {% if order.status == 'DELIVERED' %}#dcfce7; color: #15803d;{% elif order.status == 'CANCELLED' %}#fee2e2; color: #b91c1c;{% else %}#e0f2fe; color: #0369a1;{% endif %} padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 800;">
+                        {{ order.get_status_display }}
+                    </span>
+                </div>
+            </div>
+            <div>
+                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Order Date</span>
+                <div style="font-size: 14px; color: #333; font-weight: 600; margin-top: 2px;">
+                    {{ order.created_at|date:"M d, Y • h:i A" }}
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule / Slot Info -->
+        {% if order.delivery_slot %}
+        <div style="background: #f0fdf4; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13.5px; color: #166534;">
+            🕒 <strong>Scheduled Batch Window:</strong> Tomorrow ({{ order.delivery_slot.date }}), {{ order.delivery_slot.start_time|time:"H:i" }} - {{ order.delivery_slot.end_time|time:"H:i" }}
+        </div>
+        {% else %}
+        <div style="background: #f0fdf4; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13.5px; color: #166534;">
+            ⚡ <strong>Express Dispatch:</strong> Estimated delivery in 15–20 minutes.
+        </div>
+        {% endif %}
+
+        <!-- Delivery Address -->
+        <div>
+            <h4 style="margin: 0 0 6px; font-size: 14px; color: #444;">📍 Delivery Address</h4>
+            <p style="margin: 0; font-size: 13.5px; color: #666; line-height: 1.5;">
+                {% if order.address_snapshot %}
+                    {{ order.address_snapshot.street_address|default:order.address_snapshot.street }},
+                    {{ order.address_snapshot.city|default:'Pune' }} - 
+                    <strong>{{ order.address_snapshot.postal_code }}</strong>
+                {% else %}
+                    Registered Address on Profile
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Items Ordered -->
+    <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px;">
+        <h3 style="margin-top: 0; color: var(--primary); font-size: 17px; margin-bottom: 16px;">Items in this Order</h3>
+
+        <div style="border-bottom: 1px solid #f2f2f2; padding-bottom: 10px; margin-bottom: 15px;">
+            {% for item in order.items.all %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+                <div>
+                    <div style="font-size: 14px; font-weight: 700; color: #222;">{{ item.product_name_snapshot }}</div>
+                    <div style="font-size: 12px; color: #777;">Qty: {{ item.quantity }} × ₹{{ item.unit_price_snapshot }} ({{ item.unit_snapshot }})</div>
+                </div>
+                <div style="font-weight: 800; font-size: 14px; color: var(--primary);">
+                    ₹{{ item.total_price }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Bill Details -->
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: #555;">
+            <div style="display: flex; justify-content: space-between;">
+                <span>Items Subtotal</span>
+                <span style="font-weight: 700; color: #111;">₹{{ order.subtotal }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span>Delivery Fee</span>
+                <span style="font-weight: 700; color: #007a4d;">₹{{ order.delivery_fee }}</span>
+            </div>
+            {% if order.discount_amount > 0 %}
+            <div style="display: flex; justify-content: space-between; color: #007a4d;">
+                <span>Discounts</span>
+                <span style="font-weight: 700;">-₹{{ order.discount_amount }}</span>
+            </div>
+            {% endif %}
+            <div style="border-top: 1px dashed #ddd; padding-top: 10px; margin-top: 5px; display: flex; justify-content: space-between; font-size: 17px; font-weight: 900; color: var(--primary);">
+                <span>Total Amount</span>
+                <span style="color: #007a4d;">₹{{ order.total }}</span>
+            </div>
+            <div style="font-size: 12.5px; color: #777; margin-top: 4px;">
+                Payment Method: <strong>{{ order.get_payment_method_display }}</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Actions -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <a href="{% url 'orders' %}" style="flex: 1; text-align: center; background: white; border: 1.5px solid #cbd5e1; color: var(--primary); padding: 13px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 14px;">
+            View All Orders
+        </a>
+        <a href="{% url 'indexfile' %}" style="flex: 1; text-align: center; background: var(--accent); color: var(--primary); padding: 13px; border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 14px; box-shadow: 0 4px 15px rgba(0,214,143,0.3);">
+            Shop More Groceries ➔
+        </a>
+    </div>
+
+</div>
+{% endblock %}
