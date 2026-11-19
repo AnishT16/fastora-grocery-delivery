@@ -477,7 +477,7 @@
             <div class="nav-icon">🏠</div>
             Home
         </a>
-        <a href="{% url 'Grocery' %}" class="nav-item {% if request.resolver_match.url_name == 'Grocery' %}active{% endif %}">
+        <a href="{% url 'category_products' 'groceries' %}" class="nav-item {% if request.resolver_match.url_name == 'category_products' or request.resolver_match.url_name == 'Grocery' %}active{% endif %}">
             <div class="nav-icon">🗂️</div>
             Categories
         </a>

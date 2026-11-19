@@ -216,7 +216,7 @@
         <div class="category-grid">
             {% if categories %}
                 {% for cat in categories %}
-                <a href="{% if cat.slug == 'groceries' %}{% url 'Grocery' %}{% elif cat.slug == 'fruits' %}{% url 'fruits' %}{% elif cat.slug == 'meat' %}{% url 'meat' %}{% elif cat.slug == 'pharmacy' %}{% url 'pharmacy' %}{% elif cat.slug == 'electronics' %}{% url 'electronics' %}{% elif cat.slug == 'beauty' %}{% url 'beauty' %}{% elif cat.slug == 'kids' %}{% url 'kids' %}{% elif cat.slug == 'gifting' %}{% url 'gifting' %}{% else %}{% url 'Grocery' %}{% endif %}" class="cat-item">
+                <a href="{% url 'category_products' cat.slug %}" class="cat-item">
                     <div class="cat-icon-wrapper">
                         <span>{{ cat.icon|default:'🛒' }}</span>
                     </div>
@@ -282,7 +282,11 @@
                 </div>
                 <div class="product-bottom">
                     <span class="current-price">₹{{ prod.current_price|default:prod.price|default:'49.00' }}</span>
-                    <button class="btn-add" onclick="addToCart({{ prod.id }}, this)">ADD</button>
+                    {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}
+                        <button disabled class="btn-add" style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed; box-shadow: none;">OUT</button>
+                    {% else %}
+                        <button class="btn-add" onclick="addToCart({{ prod.id }}, this)">ADD</button>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}
@@ -296,7 +300,7 @@
     <!-- 4. Fruits & Vegetables Quick Section -->
     <div class="section-header">
         <div class="section-title">🍎 Farm Fresh Fruits & Veggies</div>
-        <a href="{% url 'fruits' %}" class="see-all">View Category ➔</a>
+        <a href="{% url 'category_products' 'fruits' %}" class="see-all">View Category ➔</a>
     </div>
     <div class="products-row">
         {% for prod in products %}
@@ -318,7 +322,11 @@
                 </div>
                 <div class="product-bottom">
                     <span class="current-price">₹{{ prod.current_price|default:prod.price }}</span>
-                    <button class="btn-add" onclick="addToCart({{ prod.id }}, this)">ADD</button>
+                    {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}
+                        <button disabled class="btn-add" style="background: #e2e8f0; color: #94a3b8; cursor: not-allowed; box-shadow: none;">OUT</button>
+                    {% else %}
+                        <button class="btn-add" onclick="addToCart({{ prod.id }}, this)">ADD</button>
+                    {% endif %}
                 </div>
             </div>
             {% endif %}

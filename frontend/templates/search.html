@@ -28,9 +28,13 @@
             </div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <span style="font-weight: 700; font-size: 16px; color: #0a2540;">₹{{ product.current_price }}</span>
-                <button
-                    onclick="addToCart({{ product.id }}, this)"
-                    style="background: #00d68f; color: #0a2540; border: none; font-weight: 700; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">ADD</button>
+                {% if product.quantity_available <= 0 or product.stock_status == 'OUT_OF_STOCK' %}
+                    <button disabled style="background: #e2e8f0; color: #94a3b8; border: none; font-weight: 700; padding: 6px 14px; border-radius: 6px; cursor: not-allowed;">OUT</button>
+                {% else %}
+                    <button
+                        onclick="addToCart({{ product.id }}, this)"
+                        style="background: #00d68f; color: #0a2540; border: none; font-weight: 700; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.2s ease;">ADD</button>
+                {% endif %}
             </div>
         </div>
         {% endfor %}

@@ -12,81 +12,71 @@ from apps.products.models import Product, Category
 
 
 def indexfile(request):
-    categories = Category.objects.filter(is_active=True)
+    categories = Category.objects.filter(is_active=True).order_by('name')
     products = Product.objects.filter(is_active=True).select_related('category', 'inventory')
     return render(request, 'index.html', {'categories': categories, 'products': products})
 
 
-def beauty(request):
-    products = Product.objects.filter(category__slug='beauty', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/beauty.html', {
+def category_products(request, slug):
+    category = get_object_or_404(Category, slug=slug, is_active=True)
+    all_categories = Category.objects.filter(is_active=True).order_by('name')
+
+    sort = request.GET.get('sort', '').strip()
+    stock_filter = request.GET.get('stock', '').strip()
+
+    products = Product.objects.filter(category=category, is_active=True).select_related('category', 'inventory')
+
+    if stock_filter == 'in_stock':
+        products = products.filter(inventory__quantity_available__gt=0)
+
+    if sort == 'price_low':
+        products = products.order_by('inventory__price', 'name')
+    elif sort == 'price_high':
+        products = products.order_by('-inventory__price', 'name')
+    elif sort == 'name':
+        products = products.order_by('name')
+    else:
+        products = products.order_by('-created_at')
+
+    return render(request, 'products/category_products.html', {
+        'category': category,
+        'all_categories': all_categories,
         'products': products,
-        'category_name': 'Beauty & Personal Care',
-        'category_slug': 'beauty',
+        'current_sort': sort,
+        'current_stock_filter': stock_filter,
     })
+
+
+def beauty(request):
+    return category_products(request, slug='beauty')
 
 
 def electronics(request):
-    products = Product.objects.filter(category__slug='electronics', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/electronics.html', {
-        'products': products,
-        'category_name': 'Electronics & Gadgets',
-        'category_slug': 'electronics',
-    })
+    return category_products(request, slug='electronics')
 
 
 def gifting(request):
-    products = Product.objects.filter(category__slug='gifting', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/gifting.html', {
-        'products': products,
-        'category_name': 'Gifts & Flowers',
-        'category_slug': 'gifting',
-    })
+    return category_products(request, slug='gifting')
 
 
 def kids(request):
-    products = Product.objects.filter(category__slug='kids', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/kids.html', {
-        'products': products,
-        'category_name': 'Baby & Kids',
-        'category_slug': 'kids',
-    })
+    return category_products(request, slug='kids')
 
 
 def pharmacy(request):
-    products = Product.objects.filter(category__slug='pharmacy', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/pharmacy.html', {
-        'products': products,
-        'category_name': 'Pharmacy & Wellness',
-        'category_slug': 'pharmacy',
-    })
+    return category_products(request, slug='pharmacy')
 
 
 def meat(request):
-    products = Product.objects.filter(category__slug='meat', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/meat.html', {
-        'products': products,
-        'category_name': 'Meat & Seafood',
-        'category_slug': 'meat',
-    })
+    return category_products(request, slug='meat')
 
 
 def fruits(request):
-    products = Product.objects.filter(category__slug='fruits', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/fruits.html', {
-        'products': products,
-        'category_name': 'Fruits & Vegetables',
-        'category_slug': 'fruits',
-    })
+    return category_products(request, slug='fruits')
 
 
 def Grocery(request):
-    products = Product.objects.filter(category__slug='groceries', is_active=True).select_related('category', 'inventory')
-    return render(request, 'products/Grocery.html', {
-        'products': products,
-        'category_name': 'Groceries & Kitchen',
-        'category_slug': 'groceries',
-    })
+    return category_products(request, slug='groceries')
 
 
 def profile(request):

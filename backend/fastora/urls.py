@@ -20,8 +20,9 @@ urlpatterns = [
     path('delivery/', include('apps.delivery.urls')),
     path('accounts/', include('apps.accounts.urls')),
 
-    # Frontend Storefront & Category pages
+    # Frontend Storefront & Dynamic Category pages
     path('', views.indexfile, name='indexfile'),
+    path('category/<slug:slug>/', views.category_products, name='category_products'),
     path('beauty/', views.beauty, name='beauty'),
     path('electronics/', views.electronics, name='electronics'),
     path('gifting/', views.gifting, name='gifting'),

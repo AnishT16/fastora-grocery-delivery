@@ -1,0 +1,369 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} | Fastora{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Category Navigation Pills */
+    .category-pills-bar {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 12px 20px;
+        background: white;
+        margin-bottom: 20px;
+        scrollbar-width: none;
+        border-bottom: 1px solid #edf2f7;
+    }
+    .category-pills-bar::-webkit-scrollbar { display: none; }
+    
+    .cat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 20px;
+        background: #f1f5f9;
+        color: #475569;
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 700;
+        white-space: nowrap;
+        transition: all 0.2s ease;
+        border: 1.5px solid transparent;
+    }
+    .cat-pill:hover {
+        background: #e2e8f0;
+        color: var(--primary);
+    }
+    .cat-pill.active-pill {
+        background: #0a2540;
+        color: white;
+        border-color: #0a2540;
+        box-shadow: 0 4px 12px rgba(10, 37, 64, 0.2);
+    }
+    .cat-pill.active-pill span {
+        color: var(--accent);
+    }
+
+    /* Category Hero Banner */
+    .category-banner {
+        color: white;
+        padding: 24px 22px;
+        border-radius: 20px;
+        margin-bottom: 22px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+    .banner-groceries { background: linear-gradient(135deg, #10b981, #059669); }
+    .banner-fruits { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    .banner-meat { background: linear-gradient(135deg, #ef4444, #b91c1c); }
+    .banner-pharmacy { background: linear-gradient(135deg, #0284c7, #0369a1); }
+    .banner-electronics { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+    .banner-beauty { background: linear-gradient(135deg, #ec4899, #be185d); }
+    .banner-kids { background: linear-gradient(135deg, #14b8a6, #0f766e); }
+    .banner-gifting { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+    .banner-default { background: linear-gradient(135deg, #0a2540, #1a4a7b); }
+
+    .category-banner h1 { margin: 0 0 6px; font-size: 24px; font-weight: 900; }
+    .category-banner p { margin: 0; opacity: 0.92; font-size: 13.5px; max-width: 580px; line-height: 1.45; }
+    .banner-badge {
+        background: rgba(255,255,255,0.22);
+        backdrop-filter: blur(5px);
+        padding: 6px 14px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 13px;
+        white-space: nowrap;
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    /* Filter & Controls Bar */
+    .filter-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 0 4px;
+    }
+    .filter-count { font-size: 14px; font-weight: 700; color: #475569; }
+    .filter-controls { display: flex; gap: 10px; align-items: center; }
+    .filter-select {
+        background: white;
+        border: 1px solid #cbd5e1;
+        padding: 7px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        outline: none;
+        cursor: pointer;
+    }
+
+    /* Product Grid */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(175px, 1fr));
+        gap: 16px;
+    }
+
+    /* Product Card */
+    .product-card {
+        background: white;
+        border-radius: 18px;
+        padding: 13px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+    }
+
+    .product-card-top { position: relative; }
+
+    .product-img-box {
+        width: 100%;
+        height: 115px;
+        background: #f8fafc;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 8px;
+        overflow: hidden;
+    }
+    .product-img-box img {
+        max-height: 100%;
+        max-width: 100%;
+        object-fit: contain;
+    }
+    .product-img-box .icon-placeholder {
+        font-size: 42px;
+    }
+
+    .badge-stock {
+        position: absolute;
+        top: 6px;
+        left: 6px;
+        font-size: 9.5px;
+        font-weight: 900;
+        padding: 3px 7px;
+        border-radius: 6px;
+        letter-spacing: 0.3px;
+        z-index: 2;
+    }
+    .badge-out { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .badge-low { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+
+    .delivery-pill {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 800;
+        color: #475569;
+        background: #f1f5f9;
+        padding: 2px 6px;
+        border-radius: 5px;
+        margin-bottom: 6px;
+    }
+
+    .product-name {
+        margin: 0 0 3px;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #1e293b;
+        line-height: 1.35;
+        height: 36px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+    }
+
+    .product-unit {
+        margin: 0 0 8px;
+        font-size: 12px;
+        color: #64748b;
+        font-weight: 500;
+    }
+
+    .product-card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: auto;
+        padding-top: 6px;
+    }
+
+    .price-value {
+        font-size: 15.5px;
+        font-weight: 900;
+        color: var(--primary);
+    }
+
+    .btn-add {
+        background: #00d68f;
+        color: #0a2540;
+        border: none;
+        font-weight: 900;
+        font-size: 12px;
+        padding: 6px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s, background 0.2s;
+    }
+    .btn-add:hover {
+        background: #00ba7c;
+        transform: scale(1.05);
+    }
+    .btn-disabled {
+        background: #e2e8f0 !important;
+        color: #94a3b8 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        transform: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- 1. Category Switcher Pills -->
+{% if all_categories %}
+<div class="category-pills-bar">
+    {% for cat in all_categories %}
+    <a href="{% url 'category_products' cat.slug %}" class="cat-pill {% if cat.slug == category.slug %}active-pill{% endif %}">
+        <span>{{ cat.icon|default:'🛒' }}</span>
+        {{ cat.name }}
+    </a>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="container" style="max-width: 960px; margin: 0 auto 30px;">
+    
+    <!-- 2. Category Hero Header -->
+    <div class="category-banner banner-{{ category.slug|default:'default' }}">
+        <div>
+            <h1>{{ category.icon|default:'🛒' }} {{ category.name }}</h1>
+            <p>{{ category.description|default:'Fresh stock delivered to your doorstep in minutes with fast dark-store fulfillment.' }}</p>
+        </div>
+        <div class="banner-badge">
+            {{ products|length }} Products
+        </div>
+    </div>
+
+    <!-- 3. Sort & Stock Filter Bar -->
+    <div class="filter-bar">
+        <div class="filter-count">
+            Showing {{ products|length }} items in <strong>{{ category.name }}</strong>
+        </div>
+        <div class="filter-controls">
+            <!-- Sort dropdown -->
+            <select class="filter-select" onchange="applySort(this.value)">
+                <option value="" {% if not current_sort %}selected{% endif %}>Sort by: Featured</option>
+                <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="name" {% if current_sort == 'name' %}selected{% endif %}>Name: A to Z</option>
+            </select>
+
+            <!-- Stock toggle filter -->
+            <select class="filter-select" onchange="applyStockFilter(this.value)">
+                <option value="" {% if not current_stock_filter %}selected{% endif %}>Stock: All</option>
+                <option value="in_stock" {% if current_stock_filter == 'in_stock' %}selected{% endif %}>In Stock Only</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- 4. Products Grid -->
+    {% if products %}
+    <div class="products-grid">
+        {% for prod in products %}
+        <div class="product-card">
+            <div class="product-card-top">
+                <!-- Stock status badge -->
+                {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}
+                    <span class="badge-stock badge-out">OUT OF STOCK</span>
+                {% elif prod.quantity_available <= 5 %}
+                    <span class="badge-stock badge-low">ONLY {{ prod.quantity_available }} LEFT</span>
+                {% endif %}
+
+                <!-- Product Image -->
+                <div class="product-img-box">
+                    {% if prod.image %}
+                        <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
+                    {% elif prod.image_url %}
+                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                    {% else %}
+                        <span class="icon-placeholder">{{ category.icon|default:'📦' }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="delivery-pill">⚡ 10-15 MINS</div>
+                <h4 class="product-name" title="{{ prod.name }}">{{ prod.name }}</h4>
+                <div class="product-unit">{{ prod.unit }}</div>
+            </div>
+
+            <div class="product-card-bottom">
+                <span class="price-value">₹{{ prod.current_price|default:prod.price|default:'0.00' }}</span>
+                {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}
+                    <button disabled class="btn-add btn-disabled" title="Item is currently out of stock">OUT</button>
+                {% else %}
+                    <button class="btn-add" onclick="addToCart({{ prod.id }}, this)">ADD</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <!-- 5. Empty State -->
+    <div style="text-align: center; padding: 60px 20px; background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-top: 10px;">
+        <div style="font-size: 55px; margin-bottom: 15px;">{{ category.icon|default:'🛒' }}</div>
+        <h3 style="margin: 0 0 8px; color: var(--primary); font-size: 20px;">No Products in {{ category.name }}</h3>
+        <p style="color: #64748b; font-size: 14px; margin: 0 0 25px; max-width: 440px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+            We are actively sourcing and restocking fresh items for this department. Try selecting another category or check back in a few minutes!
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'indexfile' %}" style="background: var(--primary); color: white; padding: 11px 22px; border-radius: 10px; font-weight: 700; text-decoration: none; font-size: 13.5px;">
+                Back to Home
+            </a>
+            <a href="{% url 'category_products' 'groceries' %}" style="background: var(--accent); color: var(--primary); padding: 11px 22px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13.5px;">
+                Browse Groceries & Staples
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+
+<script>
+    function applySort(val) {
+        const url = new URL(window.location);
+        if (val) {
+            url.searchParams.set('sort', val);
+        } else {
+            url.searchParams.delete('sort');
+        }
+        window.location.href = url.toString();
+    }
+
+    function applyStockFilter(val) {
+        const url = new URL(window.location);
+        if (val) {
+            url.searchParams.set('stock', val);
+        } else {
+            url.searchParams.delete('stock');
+        }
+        window.location.href = url.toString();
+    }
+</script>
+{% endblock %}
