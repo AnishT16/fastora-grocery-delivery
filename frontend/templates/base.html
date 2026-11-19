@@ -366,6 +366,13 @@
             box-shadow: 0 4px 20px rgba(0,0,0,0.2);
         }
         .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* Alert Messages */
+        .alert { padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 13.5px; }
+        .alert-success { background: #e6f7ef; color: #007a4d; border: 1px solid #b7ebd3; }
+        .alert-error, .alert-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .alert-info { background: #e6f4ff; color: #0958d9; border: 1px solid #91caff; }
+        .alert-warning { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -414,7 +421,7 @@
     {% if messages %}
     <div style="max-width: 600px; margin: 10px auto; padding: 0 20px;">
         {% for message in messages %}
-            <div style="padding: 10px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 13.5px; {% if message.tags == 'success' %}background: #e6f7ef; color: #007a4d; border: 1px solid #b7ebd3;{% else %}background: #e6f4ff; color: #0958d9; border: 1px solid #91caff;{% endif %}">
+            <div class="alert alert-{{ message.tags|default:'info' }}">
                 {{ message }}
             </div>
         {% endfor %}
