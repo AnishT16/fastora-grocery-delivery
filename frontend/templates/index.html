@@ -239,6 +239,11 @@
 
     <!-- 2. Scrollable Promotional Banners -->
     <div class="banner-container">
+        <a href="{% url 'membership_plans' %}" class="banner" style="background: linear-gradient(135deg, #0a2540, #1e3a8a); color: white;">
+            <span class="banner-offer" style="background: #00d68f; color: #0a2540;">ZERO FEES</span>
+            <div class="banner-title" style="color: #00d68f;">Fastora Plus 💎</div>
+            <div class="banner-subtitle" style="color: rgba(255,255,255,0.85);">100% Free delivery on scheduled pooled orders</div>
+        </a>
         <a href="{% url 'delivery_check' %}" class="banner banner-green">
             <span class="banner-offer">SAVE ₹40</span>
             <div class="banner-title">Smart Pooling</div>
@@ -266,7 +271,7 @@
         {% if products %}
             {% for prod in products %}
             <div class="product-card">
-                <div>
+                <a href="{% url 'product_detail' prod.id %}" style="text-decoration: none; color: inherit; display: block;">
                     <div class="product-img-box">
                         {% if prod.image %}
                             <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
@@ -279,7 +284,7 @@
                     <div class="delivery-timer">⚡ 10-15 MINS</div>
                     <h3 class="product-name" title="{{ prod.name }}">{{ prod.name }}</h3>
                     <div class="product-weight">{{ prod.unit }}</div>
-                </div>
+                </a>
                 <div class="product-bottom">
                     <span class="current-price">₹{{ prod.current_price|default:prod.price|default:'49.00' }}</span>
                     {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}
@@ -306,7 +311,7 @@
         {% for prod in products %}
             {% if prod.category.slug == 'fruits' %}
             <div class="product-card">
-                <div>
+                <a href="{% url 'product_detail' prod.id %}" style="text-decoration: none; color: inherit; display: block;">
                     <div class="product-img-box">
                         {% if prod.image %}
                             <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
@@ -319,7 +324,7 @@
                     <div class="delivery-timer">⚡ 12 MINS</div>
                     <h3 class="product-name" title="{{ prod.name }}">{{ prod.name }}</h3>
                     <div class="product-weight">{{ prod.unit }}</div>
-                </div>
+                </a>
                 <div class="product-bottom">
                     <span class="current-price">₹{{ prod.current_price|default:prod.price }}</span>
                     {% if prod.quantity_available <= 0 or prod.stock_status == 'OUT_OF_STOCK' %}

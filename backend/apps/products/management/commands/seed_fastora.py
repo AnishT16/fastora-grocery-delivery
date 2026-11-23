@@ -161,19 +161,14 @@ class Command(BaseCommand):
         for zone in active_zones:
             for day_offset in [0, 1]:
                 slot_date = today + timedelta(days=day_offset)
-                slot_windows = [
-                    (time(8, 0), time(10, 0), time(7, 30)),
-                    (time(10, 0), time(12, 0), time(9, 30)),
-                    (time(13, 0), time(15, 0), time(12, 30)),
-                    (time(16, 0), time(18, 0), time(15, 30)),
-                    (time(18, 0), time(20, 0), time(17, 30)),
-                    (time(20, 0), time(22, 0), time(19, 30)),
-                ]
-                for start_t, end_t, cutoff_t in slot_windows:
-                    cutoff_dt = timezone.make_aware(
-                        timezone.datetime.combine(slot_date, cutoff_t),
+                for start_hour in range(7, 22):
+                    start_t = time(start_hour, 0)
+                    end_t = time(start_hour + 1, 0)
+                    slot_start_dt = timezone.make_aware(
+                        timezone.datetime.combine(slot_date, start_t),
                         timezone.get_current_timezone()
                     )
+                    cutoff_dt = slot_start_dt - timedelta(minutes=15)
                     DeliverySlot.objects.get_or_create(
                         zone=zone,
                         date=slot_date,

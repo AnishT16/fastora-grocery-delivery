@@ -13,7 +13,7 @@
         {% for product in results %}
         <div
             style="background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between;">
-            <div>
+            <a href="{% url 'product_detail' product.id %}" style="text-decoration: none; color: inherit; display: block;">
                 {% if product.image %}
                 <img src="{{ product.image.url }}" alt="{{ product.name }}"
                     style="width: 100%; height: 130px; object-fit: contain; border-radius: 8px;">
@@ -25,7 +25,7 @@
                 {% endif %}
                 <h4 style="margin: 10px 0 5px; font-size: 15px; color: #222;">{{ product.name }}</h4>
                 <p style="margin: 0; color: #777; font-size: 12px;">{{ product.unit }}</p>
-            </div>
+            </a>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <span style="font-weight: 700; font-size: 16px; color: #0a2540;">₹{{ product.current_price }}</span>
                 {% if product.quantity_available <= 0 or product.stock_status == 'OUT_OF_STOCK' %}

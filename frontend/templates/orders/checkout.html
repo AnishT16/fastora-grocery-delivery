@@ -23,10 +23,10 @@
                 </div>
 
                 {% if addresses %}
-                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
+                <div id="address-list-container" style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px;">
                     {% for addr in addresses %}
-                    <label style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid {% if forloop.first %}var(--accent){% else %}#e2e8f0{% endif %}; border-radius: 12px; cursor: pointer; background: {% if forloop.first %}#f0fdf4{% else %}white{% endif %};">
-                        <input type="radio" name="selected_address_id" value="{{ addr.id }}" {% if forloop.first %}checked{% endif %} onchange="onAddressChange(this)" style="margin-top: 3px;">
+                    <label class="address-item-card" style="display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1.5px solid {% if forloop.first %}var(--accent){% else %}#e2e8f0{% endif %}; border-radius: 12px; cursor: pointer; background: {% if forloop.first %}#f0fdf4{% else %}white{% endif %};">
+                        <input type="radio" name="selected_address_id" value="{{ addr.id }}" data-postal-code="{{ addr.postal_code }}" {% if forloop.first %}checked{% endif %} onchange="onAddressChange(this)" style="margin-top: 3px;">
                         <div>
                             <div style="font-weight: 700; font-size: 14px; color: #111;">
                                 {{ addr.title|default:'Home' }}
@@ -92,22 +92,28 @@
 
                 <!-- Slot Selector for Pooled Delivery -->
                 <div id="slot-picker-container" style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
-                    <label style="display: block; font-size: 13.5px; font-weight: 700; color: #333; margin-bottom: 8px;">
-                        Select Tomorrow's Delivery Slot:
-                    </label>
+                    <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
+                        <label style="font-size: 13.5px; font-weight: 700; color: #333;">
+                            Select Smart Delivery Window (Max 1–2 Hours):
+                        </label>
+                        <span style="font-size: 12px; color: #007a4d; font-weight: 700;">⚡ Rolling 60–90 Mins Batch</span>
+                    </div>
                     {% if slots %}
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
                         {% for s in slots %}
-                        <label style="border: 1px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; background: white; font-size: 13px;">
-                            <input type="radio" name="selected_slot_id" value="{{ s.id }}" {% if forloop.first %}checked{% endif %}>
-                            <div style="font-weight: 700; color: #111; margin-top: 3px;">{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</div>
-                            <div style="font-size: 11px; color: #007a4d; margin-top: 2px;">{{ s.available_capacity }} slots left</div>
+                        <label style="border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; background: white; font-size: 13px; position: relative;">
+                            <input type="radio" name="selected_slot_id" value="{{ s.id }}" {% if forloop.first %}checked{% endif %} style="position: absolute; top: 8px; right: 8px;">
+                            <div style="font-size: 11px; font-weight: 800; color: {% if s.date == today %}#007a4d; background: #e8f5e9;{% else %}#475569; background: #f1f5f9;{% endif %} display: inline-block; padding: 2px 7px; border-radius: 5px; margin-bottom: 5px;">
+                                {% if s.date == today %}Today (1–2 Hrs){% else %}Tomorrow{% endif %}
+                            </div>
+                            <div style="font-weight: 700; color: #111;">{{ s.start_time|time:"H:i" }} - {{ s.end_time|time:"H:i" }}</div>
+                            <div style="font-size: 11px; color: #007a4d; margin-top: 3px;">{{ s.available_capacity }} slots left</div>
                         </label>
                         {% endfor %}
                     </div>
                     {% else %}
                     <div style="padding: 10px 14px; background: #fef3c7; border-radius: 8px; font-size: 12.5px; color: #92400e;">
-                        Default morning batch slot (09:00 - 11:00 AM) will be assigned.
+                        ⚡ Express or next available 1–2 hour micro-batch slot will be assigned automatically.
                     </div>
                     {% endif %}
                 </div>
@@ -191,13 +197,120 @@
 
 <script>
     let cartSubtotal = parseFloat("{{ cart.subtotal|default:'0' }}");
+    let quotes = {
+        SCHEDULED_POOLED: { final_fee: 10.00, pooled_discount: 25.00, membership_discount: 0.00, is_serviceable: true },
+        EXPRESS: { final_fee: 35.00, pooled_discount: 0.00, membership_discount: 0.00, is_serviceable: true }
+    };
     let currentDeliveryFee = 10.00;
+
+    function getSelectedPostalCode() {
+        const streetInput = document.getElementById('new_street');
+        const newPostalInput = document.getElementById('new_postal_code');
+        if (streetInput && streetInput.value.trim() && newPostalInput && newPostalInput.value.trim()) {
+            return newPostalInput.value.trim();
+        }
+        const selectedAddrRadio = document.querySelector('input[name="selected_address_id"]:checked');
+        if (selectedAddrRadio && selectedAddrRadio.dataset.postalCode) {
+            return selectedAddrRadio.dataset.postalCode;
+        }
+        return '411038';
+    }
+
+    function onAddressChange(radio) {
+        // Update visual radio cards
+        document.querySelectorAll('.address-item-card').forEach(card => {
+            card.style.borderColor = '#e2e8f0';
+            card.style.background = 'white';
+        });
+        const parentLabel = radio.closest('.address-item-card');
+        if (parentLabel) {
+            parentLabel.style.borderColor = 'var(--accent)';
+            parentLabel.style.background = '#f0fdf4';
+        }
+        fetchDeliveryQuotes();
+    }
+
+    async function fetchDeliveryQuotes() {
+        const postalCode = getSelectedPostalCode();
+        const errorDiv = document.getElementById('checkout-error');
+        const pooledLabel = document.getElementById('pooled-fee-label');
+        const expressLabel = document.getElementById('express-fee-label');
+
+        try {
+            // Fetch pooled quote
+            const resPooled = await fetch('/api/delivery/fee-quote/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    postal_code: postalCode,
+                    subtotal: cartSubtotal,
+                    delivery_option: 'SCHEDULED_POOLED'
+                })
+            });
+
+            // Fetch express quote
+            const resExpress = await fetch('/api/delivery/fee-quote/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    postal_code: postalCode,
+                    subtotal: cartSubtotal,
+                    delivery_option: 'EXPRESS'
+                })
+            });
+
+            if (resPooled.ok && resExpress.ok) {
+                quotes.SCHEDULED_POOLED = await resPooled.json();
+                quotes.EXPRESS = await resExpress.json();
+
+                if (!quotes.SCHEDULED_POOLED.is_serviceable && !quotes.EXPRESS.is_serviceable) {
+                    errorDiv.textContent = quotes.SCHEDULED_POOLED.explanation_message || 'This location is currently outside our dark store delivery radius.';
+                    errorDiv.style.display = 'block';
+                } else {
+                    errorDiv.style.display = 'none';
+                }
+
+                // Update labels
+                const pooledFee = quotes.SCHEDULED_POOLED.final_fee;
+                if (quotes.SCHEDULED_POOLED.membership_discount > 0 || pooledFee === 0) {
+                    pooledLabel.innerHTML = 'Fee: <span style="color:#00d68f; text-decoration:line-through; font-size:12px; color:#888;">₹15.00</span> <strong>FREE (Fastora Plus)</strong>';
+                } else {
+                    pooledLabel.textContent = `Fee: ₹${pooledFee.toFixed(2)}`;
+                }
+
+                const expressFee = quotes.EXPRESS.final_fee;
+                expressLabel.textContent = `Fee: ₹${expressFee.toFixed(2)}`;
+
+                // Update current active option fee
+                const selectedOptRadio = document.querySelector('input[name="delivery_option"]:checked');
+                const selectedOpt = selectedOptRadio ? selectedOptRadio.value : 'SCHEDULED_POOLED';
+                currentDeliveryFee = (selectedOpt === 'SCHEDULED_POOLED') ? pooledFee : expressFee;
+
+                const discount = quotes.SCHEDULED_POOLED.pooled_discount || 0;
+                const savingsEl = document.getElementById('summary-savings');
+                if (savingsEl) {
+                    savingsEl.textContent = `-₹${discount.toFixed(2)}`;
+                }
+            }
+        } catch (err) {
+            console.error('Error fetching quotes', err);
+        }
+
+        updateTotals();
+    }
 
     function onDeliveryOptionChange(radio) {
         const isPooled = radio.value === 'SCHEDULED_POOLED';
         const pooledCard = document.getElementById('opt-pooled-card');
         const expressCard = document.getElementById('opt-express-card');
         const slotContainer = document.getElementById('slot-picker-container');
+        const savingsRow = document.getElementById('summary-savings-row');
 
         if (isPooled) {
             pooledCard.style.borderColor = 'var(--accent)';
@@ -205,16 +318,16 @@
             expressCard.style.borderColor = '#e2e8f0';
             expressCard.style.background = 'white';
             if (slotContainer) slotContainer.style.display = 'block';
-            currentDeliveryFee = 10.00;
-            document.getElementById('summary-savings-row').style.display = 'flex';
+            currentDeliveryFee = quotes.SCHEDULED_POOLED.final_fee;
+            if (savingsRow) savingsRow.style.display = 'flex';
         } else {
             expressCard.style.borderColor = 'var(--primary)';
             expressCard.style.background = '#f8fafc';
             pooledCard.style.borderColor = '#e2e8f0';
             pooledCard.style.background = 'white';
             if (slotContainer) slotContainer.style.display = 'none';
-            currentDeliveryFee = 35.00;
-            document.getElementById('summary-savings-row').style.display = 'none';
+            currentDeliveryFee = quotes.EXPRESS.final_fee;
+            if (savingsRow) savingsRow.style.display = 'none';
         }
 
         updateTotals();
@@ -222,8 +335,14 @@
 
     function updateTotals() {
         const total = cartSubtotal + currentDeliveryFee;
-        document.getElementById('summary-delivery-fee').textContent = `₹${currentDeliveryFee.toFixed(2)}`;
-        document.getElementById('summary-total-due').textContent = `₹${total.toFixed(2)}`;
+        const feeEl = document.getElementById('summary-delivery-fee');
+        if (feeEl) {
+            feeEl.textContent = (currentDeliveryFee === 0) ? 'FREE' : `₹${currentDeliveryFee.toFixed(2)}`;
+        }
+        const totalEl = document.getElementById('summary-total-due');
+        if (totalEl) {
+            totalEl.textContent = `₹${total.toFixed(2)}`;
+        }
     }
 
     async function submitOrder() {
@@ -294,6 +413,23 @@
 
             const data = await res.json();
             if (res.ok && data.id) {
+                if (paymentMethod === 'ONLINE') {
+                    btn.textContent = 'Simulating Payment Gateway...';
+                    // Confirm payment via verification endpoint
+                    await fetch('/api/payment/verify/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': csrftoken,
+                        },
+                        body: JSON.stringify({
+                            order_id: data.id,
+                            payment_status: 'SUCCESS',
+                            transaction_reference: `PAY_FAST_${data.id}_${Date.now()}`
+                        })
+                    });
+                }
+
                 showToast('Order confirmed!', '🎉');
                 window.location.href = `/orders/${data.id}/`;
             } else {
@@ -318,7 +454,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        updateTotals();
+        fetchDeliveryQuotes();
     });
 </script>
 {% endblock %}

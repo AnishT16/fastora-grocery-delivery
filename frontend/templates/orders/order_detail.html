@@ -1,41 +1,111 @@
 {% extends 'base.html' %}
 
-{% block title %}Order #{{ order.id }} | Fastora{% endblock %}
+{% block title %}Order #{{ order.id }} Tracking | Fastora{% endblock %}
 
 {% block content %}
 <div class="container" style="max-width: 800px; margin: 25px auto;">
     
-    <!-- Success Celebration Banner -->
-    <div style="background: linear-gradient(135deg, #0a2540, #1a4a7b); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px; box-shadow: 0 6px 20px rgba(10,37,64,0.15);">
-        <div style="width: 60px; height: 60px; background: rgba(0, 214, 143, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 15px; border: 2px solid var(--accent);">
-            ✓
-        </div>
-        <h2 style="margin: 0 0 8px; font-size: 26px;">Order #{{ order.id }} Confirmed!</h2>
-        <p style="margin: 0; opacity: 0.9; font-size: 14px;">
-            Thank you for shopping with Fastora. We're packing your essentials fresh from our dark store.
-        </p>
+    <!-- Success Celebration / Status Banner -->
+    <div id="order-header-banner" style="background: linear-gradient(135deg, #0a2540, #1a4a7b); color: white; padding: 26px; border-radius: 20px; text-align: center; margin-bottom: 22px; box-shadow: 0 6px 20px rgba(10,37,64,0.15);">
+        {% if order.status == 'cancelled' %}
+            <div style="width: 55px; height: 55px; background: rgba(239, 68, 68, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; border: 2px solid #ef4444;">
+                ✕
+            </div>
+            <h2 style="margin: 0 0 6px; font-size: 24px; color: #fca5a5;">Order #{{ order.id }} Cancelled</h2>
+            <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">
+                Reason: {{ order.cancellation_reason|default:'Cancelled by customer request' }}. Reserved items and delivery slots have been restored.
+            </p>
+        {% elif order.status == 'delivered' %}
+            <div style="width: 55px; height: 55px; background: rgba(0, 214, 143, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; border: 2px solid var(--accent);">
+                ✓
+            </div>
+            <h2 style="margin: 0 0 6px; font-size: 24px;">Order #{{ order.id }} Delivered!</h2>
+            <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">
+                Groceries were safely delivered to your doorstep. Thank you for ordering with Fastora!
+            </p>
+        {% else %}
+            <div style="width: 55px; height: 55px; background: rgba(0, 214, 143, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 12px; border: 2px solid var(--accent);">
+                📦
+            </div>
+            <h2 style="margin: 0 0 6px; font-size: 24px;">Order #{{ order.id }} Confirmed!</h2>
+            <p style="margin: 0; opacity: 0.9; font-size: 13.5px;">
+                We're packing your essentials fresh from our dark store. Track live progress below.
+            </p>
+        {% endif %}
     </div>
+
+    <!-- Visual Order Tracking Timeline Stepper -->
+    {% if order.status != 'cancelled' %}
+    <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px;">
+        <h3 style="margin: 0 0 18px; font-size: 16px; color: var(--primary);">Live Delivery Progression</h3>
+        
+        <div style="display: flex; justify-content: space-between; position: relative; margin: 10px 10px 25px;">
+            <!-- Connector line -->
+            <div style="position: absolute; top: 16px; left: 20px; right: 20px; height: 4px; background: #e2e8f0; z-index: 1;"></div>
+            
+            <!-- Step 1: Confirmed -->
+            <div style="position: relative; z-index: 2; text-align: center; flex: 1;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #00d68f; color: #0a2540; font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    ✓
+                </div>
+                <div style="font-weight: 700; font-size: 12.5px; color: #0a2540;">Confirmed</div>
+                <div style="font-size: 11px; color: #777;">Order Received</div>
+            </div>
+
+            <!-- Step 2: Preparing / Packing -->
+            <div style="position: relative; z-index: 2; text-align: center; flex: 1;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status in 'packing,ready_for_pickup,in_transit,delivered' %}#00d68f; color: #0a2540;{% else %}#e2e8f0; color: #94a3b8;{% endif %} font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    🛍️
+                </div>
+                <div style="font-weight: 700; font-size: 12.5px; color: #0a2540;">Packing</div>
+                <div style="font-size: 11px; color: #777;">Dark Store Hub</div>
+            </div>
+
+            <!-- Step 3: Out for Delivery / In Transit -->
+            <div style="position: relative; z-index: 2; text-align: center; flex: 1;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status in 'in_transit,delivered' %}#00d68f; color: #0a2540;{% else %}#e2e8f0; color: #94a3b8;{% endif %} font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    🚴
+                </div>
+                <div style="font-weight: 700; font-size: 12.5px; color: #0a2540;">In Transit</div>
+                <div style="font-size: 11px; color: #777;">Rider on Route</div>
+            </div>
+
+            <!-- Step 4: Delivered -->
+            <div style="position: relative; z-index: 2; text-align: center; flex: 1;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: {% if order.status == 'delivered' %}#00d68f; color: #0a2540;{% else %}#e2e8f0; color: #94a3b8;{% endif %} font-weight: 800; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    🎉
+                </div>
+                <div style="font-weight: 700; font-size: 12.5px; color: #0a2540;">Delivered</div>
+                <div style="font-size: 11px; color: #777;">At Doorstep</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; font-size: 12px; color: #888; border-top: 1px dashed #f0f0f0; padding-top: 10px;">
+            ⚡ Tracking automatically updates every 8 seconds.
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Status & Tracking Card -->
     <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); margin-bottom: 20px;">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #f0f0f0; padding-bottom: 15px;">
             <div>
                 <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Delivery Mode</span>
-                <div style="font-weight: 800; font-size: 16px; color: var(--primary); margin-top: 2px;">
+                <div style="font-weight: 800; font-size: 15px; color: var(--primary); margin-top: 2px;">
                     {{ order.get_delivery_option_display }}
                 </div>
             </div>
             <div>
-                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Status</span>
+                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Order Status</span>
                 <div style="margin-top: 2px;">
-                    <span style="background: {% if order.status == 'DELIVERED' %}#dcfce7; color: #15803d;{% elif order.status == 'CANCELLED' %}#fee2e2; color: #b91c1c;{% else %}#e0f2fe; color: #0369a1;{% endif %} padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 800;">
+                    <span id="order-status-badge" style="background: {% if order.status == 'delivered' %}#dcfce7; color: #15803d;{% elif order.status == 'cancelled' %}#fee2e2; color: #b91c1c;{% else %}#e0f2fe; color: #0369a1;{% endif %} padding: 4px 12px; border-radius: 8px; font-size: 13px; font-weight: 800;">
                         {{ order.get_status_display }}
                     </span>
                 </div>
             </div>
             <div>
-                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Order Date</span>
-                <div style="font-size: 14px; color: #333; font-weight: 600; margin-top: 2px;">
+                <span style="font-size: 12px; color: #777; text-transform: uppercase; font-weight: 700;">Order Placed</span>
+                <div style="font-size: 13.5px; color: #333; font-weight: 600; margin-top: 2px;">
                     {{ order.created_at|date:"M d, Y • h:i A" }}
                 </div>
             </div>
@@ -44,7 +114,10 @@
         <!-- Schedule / Slot Info -->
         {% if order.delivery_slot %}
         <div style="background: #f0fdf4; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13.5px; color: #166534;">
-            🕒 <strong>Scheduled Batch Window:</strong> Tomorrow ({{ order.delivery_slot.date }}), {{ order.delivery_slot.start_time|time:"H:i" }} - {{ order.delivery_slot.end_time|time:"H:i" }}
+            🕒 <strong>Smart Delivery Batch Window:</strong> 
+            {% if order.delivery_slot.date == today %}Today{% else %}{{ order.delivery_slot.date|date:"M d" }}{% endif %}, 
+            {{ order.delivery_slot.start_time|time:"H:i" }} - {{ order.delivery_slot.end_time|time:"H:i" }} 
+            <span style="font-size: 12px; color: #047857; margin-left: 6px;">(Estimated delivery in 1–2 hours)</span>
         </div>
         {% else %}
         <div style="background: #f0fdf4; border-left: 4px solid var(--accent); padding: 12px 16px; border-radius: 8px; margin-bottom: 18px; font-size: 13.5px; color: #166534;">
@@ -57,7 +130,7 @@
             <h4 style="margin: 0 0 6px; font-size: 14px; color: #444;">📍 Delivery Address</h4>
             <p style="margin: 0; font-size: 13.5px; color: #666; line-height: 1.5;">
                 {% if order.address_snapshot %}
-                    {{ order.address_snapshot.street_address|default:order.address_snapshot.street }},
+                    {{ order.address_snapshot.street_address }},
                     {{ order.address_snapshot.city|default:'Pune' }} - 
                     <strong>{{ order.address_snapshot.postal_code }}</strong>
                 {% else %}
@@ -97,7 +170,7 @@
             </div>
             {% if order.discount_amount > 0 %}
             <div style="display: flex; justify-content: space-between; color: #007a4d;">
-                <span>Discounts</span>
+                <span>Pooling / Promotion Discounts</span>
                 <span style="font-weight: 700;">-₹{{ order.discount_amount }}</span>
             </div>
             {% endif %}
@@ -111,15 +184,80 @@
         </div>
     </div>
 
-    <!-- Bottom Actions -->
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <!-- Actions Bar -->
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px;">
         <a href="{% url 'orders' %}" style="flex: 1; text-align: center; background: white; border: 1.5px solid #cbd5e1; color: var(--primary); padding: 13px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 14px;">
             View All Orders
         </a>
+
+        {% if order.status in 'confirmed,pending,packing' %}
+        <button id="btn-cancel-order" onclick="cancelCurrentOrder()" style="background: #fff1f0; border: 1.5px solid #ffa39e; color: #cf1322; padding: 13px 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 14px;">
+            Cancel Order
+        </button>
+        {% endif %}
+
         <a href="{% url 'indexfile' %}" style="flex: 1; text-align: center; background: var(--accent); color: var(--primary); padding: 13px; border-radius: 12px; font-weight: 800; text-decoration: none; font-size: 14px; box-shadow: 0 4px 15px rgba(0,214,143,0.3);">
             Shop More Groceries ➔
         </a>
     </div>
 
 </div>
+
+<script>
+    const orderId = {{ order.id }};
+    const currentStatus = "{{ order.status }}";
+
+    async function cancelCurrentOrder() {
+        const reason = prompt("Please let us know why you are cancelling this order:", "Ordered by mistake");
+        if (reason === null) return;
+
+        const btn = document.getElementById('btn-cancel-order');
+        if (btn) btn.disabled = true;
+
+        try {
+            const res = await fetch(`/api/orders/${orderId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ reason: reason || 'Customer requested cancellation' })
+            });
+
+            if (res.ok) {
+                showToast('Order cancelled', '🛑');
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                const err = await res.json();
+                alert(err.error || err.detail || 'Could not cancel order.');
+                if (btn) btn.disabled = false;
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Network error cancelling order.');
+            if (btn) btn.disabled = false;
+        }
+    }
+
+    // Auto-poll status if order is actively processing
+    if (currentStatus !== 'delivered' && currentStatus !== 'cancelled') {
+        const pollInterval = setInterval(async () => {
+            try {
+                const res = await fetch(`/api/orders/${orderId}/`, {
+                    headers: { 'X-CSRFToken': csrftoken }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.status !== currentStatus) {
+                        // Status changed! Reload to reflect updated stepper
+                        clearInterval(pollInterval);
+                        window.location.reload();
+                    }
+                }
+            } catch (e) {
+                console.log('Polling status error', e);
+            }
+        }, 8000);
+    }
+</script>
 {% endblock %}

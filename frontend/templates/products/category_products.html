@@ -297,20 +297,22 @@
                     <span class="badge-stock badge-low">ONLY {{ prod.quantity_available }} LEFT</span>
                 {% endif %}
 
-                <!-- Product Image -->
-                <div class="product-img-box">
-                    {% if prod.image %}
-                        <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
-                    {% elif prod.image_url %}
-                        <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
-                    {% else %}
-                        <span class="icon-placeholder">{{ category.icon|default:'📦' }}</span>
-                    {% endif %}
-                </div>
+                <a href="{% url 'product_detail' prod.id %}" style="text-decoration: none; color: inherit; display: block;">
+                    <!-- Product Image -->
+                    <div class="product-img-box">
+                        {% if prod.image %}
+                            <img src="{{ prod.image.url }}" alt="{{ prod.name }}">
+                        {% elif prod.image_url %}
+                            <img src="{{ prod.image_url }}" alt="{{ prod.name }}">
+                        {% else %}
+                            <span class="icon-placeholder">{{ category.icon|default:'📦' }}</span>
+                        {% endif %}
+                    </div>
 
-                <div class="delivery-pill">⚡ 10-15 MINS</div>
-                <h4 class="product-name" title="{{ prod.name }}">{{ prod.name }}</h4>
-                <div class="product-unit">{{ prod.unit }}</div>
+                    <div class="delivery-pill">⚡ 10-15 MINS</div>
+                    <h4 class="product-name" title="{{ prod.name }}">{{ prod.name }}</h4>
+                    <div class="product-unit">{{ prod.unit }}</div>
+                </a>
             </div>
 
             <div class="product-card-bottom">

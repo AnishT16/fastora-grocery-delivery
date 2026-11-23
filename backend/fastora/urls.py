@@ -32,6 +32,11 @@ urlpatterns = [
     path('fruits/', views.fruits, name='fruits'),
     path('Grocery/', views.Grocery, name='Grocery'),
     path('profile/', views.profile, name='profile'),
+    path('membership/', views.membership_plans_view, name='membership_plans'),
+    path('plus/', views.membership_plans_view, name='fastora_plus'),
+    path('delivery/rider/', views.rider_dashboard_view, name='rider_dashboard'),
+    path('dispatcher/', views.dispatcher_dashboard_view, name='dispatcher_dashboard'),
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('search/', views.search, name='search'),
 
     # Cart, Checkout & Orders

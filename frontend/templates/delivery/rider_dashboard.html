@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Rider Delivery Portal | Fastora Fleet{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 760px; margin: 25px auto;">
+    
+    <!-- Rider Header Banner -->
+    <div style="background: linear-gradient(135deg, #1e3a8a 0%, #0a2540 100%); color: white; padding: 25px; border-radius: 20px; box-shadow: 0 6px 20px rgba(30,58,138,0.2); margin-bottom: 22px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <div style="display: inline-block; background: rgba(0, 214, 143, 0.2); color: #00d68f; padding: 3px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 800; margin-bottom: 6px;">
+                    FASTORA FLEET OPS
+                </div>
+                <h1 style="margin: 0 0 4px; font-size: 22px;">🚴 Rider Portal: {{ request.user.get_full_name|default:request.user.username }}</h1>
+                <p style="margin: 0; font-size: 13px; opacity: 0.85;">Pune Dark Store Hub • Status: <strong>ONLINE & DISPATCHABLE</strong></p>
+            </div>
+            <div>
+                <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                    🔄 Refresh Stops
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Batches Container -->
+    {% if batches %}
+        {% for batch in batches %}
+        <div style="background: white; border-radius: 20px; padding: 22px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); margin-bottom: 25px; border-top: 4px solid var(--accent);">
+            
+            <!-- Batch Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 18px;">
+                <div>
+                    <span style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase;">Active Assigned Batch</span>
+                    <h2 style="margin: 2px 0 0; font-size: 19px; color: var(--primary);">Batch #{{ batch.id }} • {{ batch.zone.name }}</h2>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800;">
+                        {{ batch.get_status_display }}
+                    </span>
+                    <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                        {% if batch.slot %}{{ batch.slot.start_time|time:"H:i" }} - {{ batch.slot.end_time|time:"H:i" }}{% else %}Express Direct{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sequenced Delivery Stops -->
+            <h3 style="margin: 0 0 14px; font-size: 15px; color: #334155;">📍 Sequenced Delivery Stops ({{ batch.pooled_orders.count }} Orders)</h3>
+
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                {% for po in batch.pooled_orders.all %}
+                <div id="stop-card-{{ po.order.id }}" style="border: 1.5px solid {% if po.status == 'DELIVERED' %}#bbf7d0; background: #f0fdf4;{% elif po.status == 'FAILED' %}#fecaca; background: #fef2f2;{% else %}#e2e8f0; background: white;{% endif %} border-radius: 14px; padding: 16px; transition: all 0.2s;">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">
+                                {{ forloop.counter }}
+                            </div>
+                            <div>
+                                <h4 style="margin: 0; font-size: 15px; color: #1e293b;">
+                                    Stop #{{ po.sequence|default:forloop.counter }}: Order #{{ po.order.id }}
+                                </h4>
+                                <div style="font-size: 12px; color: #64748b;">
+                                    Customer: <strong>{{ po.order.customer.username }}</strong> • {{ po.order.customer.phone|default:'Phone on app' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <span id="badge-{{ po.order.id }}" style="font-size: 11px; font-weight: 800; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; background: {% if po.status == 'DELIVERED' %}#dcfce7; color: #166534;{% elif po.status == 'FAILED' %}#fee2e2; color: #991b1b;{% else %}#f1f5f9; color: #475569;{% endif %}">
+                            {{ po.get_status_display }}
+                        </span>
+                    </div>
+
+                    <!-- Destination Address Snapshot -->
+                    <div style="background: rgba(0,0,0,0.02); padding: 10px 12px; border-radius: 8px; font-size: 13px; color: #334155; margin-bottom: 12px; line-height: 1.4;">
+                        <strong>🏠 Delivery Address:</strong><br>
+                        {% if po.order.address_snapshot %}
+                            {{ po.order.address_snapshot.street_address }},
+                            {{ po.order.address_snapshot.city|default:'Pune' }} - PIN: <strong>{{ po.order.address_snapshot.postal_code }}</strong>
+                        {% else %}
+                            Address details attached to Order record
+                        {% endif %}
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div style="display: flex; justify-content: space-between; font-size: 12.5px; color: #64748b; margin-bottom: 14px;">
+                        <span>📦 {{ po.order.items.count }} Grocery items</span>
+                        <span>Payment: <strong style="color: {% if po.order.payment_method == 'COD' %}#d97706{% else %}#16a34a{% endif %};">{{ po.order.get_payment_method_display }} (₹{{ po.order.total }})</strong></span>
+                    </div>
+
+                    <!-- Rider Status Buttons -->
+                    {% if po.status != 'DELIVERED' and po.status != 'FAILED' %}
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        {% if po.status != 'PICKED_UP' %}
+                        <button onclick="updateRiderOrderStatus({{ po.order.id }}, 'PICKED_UP')" style="flex: 1; background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; padding: 10px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                            📦 Mark Picked Up
+                        </button>
+                        {% endif %}
+
+                        <button onclick="updateRiderOrderStatus({{ po.order.id }}, 'DELIVERED')" style="flex: 1.5; background: #00d68f; color: #0a2540; border: none; padding: 10px; border-radius: 8px; font-weight: 900; font-size: 13px; cursor: pointer; box-shadow: 0 2px 8px rgba(0,214,143,0.3);">
+                            ✅ Confirm Delivered
+                        </button>
+
+                        <button onclick="reportFailedDelivery({{ po.order.id }})" style="background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 10px 14px; border-radius: 8px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                            ⚠️ Failed
+                        </button>
+                    </div>
+                    {% else %}
+                    <div style="font-size: 12px; color: #64748b; font-style: italic;">
+                        Completed stop recorded.
+                    </div>
+                    {% endif %}
+
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+        {% endfor %}
+    {% else %}
+        <!-- Empty Fleet State -->
+        <div style="background: white; border-radius: 20px; padding: 50px 20px; text-align: center; box-shadow: 0 4px 18px rgba(0,0,0,0.04);">
+            <div style="font-size: 55px; margin-bottom: 15px;">🚴</div>
+            <h3 style="margin: 0 0 8px; font-size: 20px; color: var(--primary);">No Active Batches Assigned</h3>
+            <p style="color: #64748b; font-size: 14px; max-width: 440px; margin: 0 auto 20px; line-height: 1.5;">
+                You are currently marked available at the dark store hub. When the dispatcher releases a neighbourhood batch, it will appear here immediately.
+            </p>
+            <button onclick="window.location.reload()" style="background: var(--accent); color: var(--primary); font-weight: 800; border: none; padding: 12px 24px; border-radius: 12px; cursor: pointer; font-size: 14px;">
+                Check for New Batches 🔄
+            </button>
+        </div>
+    {% endif %}
+
+</div>
+
+<script>
+    async function updateRiderOrderStatus(orderId, newStatus, notes = '') {
+        try {
+            const res = await fetch(`/api/delivery/orders/${orderId}/status/`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    status: newStatus,
+                    notes: notes || `Rider updated order to ${newStatus}`
+                })
+            });
+
+            if (res.ok) {
+                showToast(`Order #${orderId} updated to ${newStatus}!`, '🚴');
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                const err = await res.json();
+                alert(err.detail || err.error || 'Failed to update order status.');
+            }
+        } catch (e) {
+            console.error('Rider status update error', e);
+            alert('Network error updating delivery status.');
+        }
+    }
+
+    function reportFailedDelivery(orderId) {
+        const reason = prompt('Please enter reason for failed delivery (e.g. Customer unavailable, incorrect address):', 'Customer not reachable');
+        if (reason) {
+            updateRiderOrderStatus(orderId, 'FAILED', reason);
+        }
+    }
+</script>
+{% endblock %}
