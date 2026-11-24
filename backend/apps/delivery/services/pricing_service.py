@@ -4,12 +4,11 @@ from django.db.models import F
 
 from ..models import DeliverySlot, DeliveryFeeRule
 from .zone_service import get_serviceable_zone
-from ...memberships.services import is_member_active, apply_membership_benefits
 from common.exceptions import ZoneNotServiceableError
 
 
 def calculate_delivery_quote(address, cart_subtotal, delivery_option, slot_id=None, user=None):
-    # Calculates base fee, distance fee, pooled discount, and membership discount
+    # Calculates base fee, distance fee, pooled discount, and final delivery fee
     subtotal = Decimal(str(cart_subtotal))
     option_normalized = str(delivery_option).upper()
     if 'POOLED' in option_normalized or 'SCHEDULED' in option_normalized:
@@ -104,20 +103,15 @@ def calculate_delivery_quote(address, cart_subtotal, delivery_option, slot_id=No
     distance_fee = round(dist_dec * per_km_fee, 2)
     nominal_fee = base_fee + distance_fee
 
-    has_membership = is_member_active(user)
     pooled_discount = Decimal('0.00')
-    membership_discount = Decimal('0.00')
 
     if option == DeliveryFeeRule.OPTION_SCHEDULED_POOLED:
         pooled_discount = min(rule_pooled_discount, nominal_fee)
 
     fee_after_pooling = max(Decimal('0.00'), nominal_fee - pooled_discount)
 
-    if has_membership:
-        final_fee = apply_membership_benefits(user, subtotal, fee_after_pooling)
-        membership_discount = max(Decimal('0.00'), fee_after_pooling - final_fee)
-    elif min_order_discount and subtotal >= min_order_discount:
-        membership_discount = fee_after_pooling
+    if min_order_discount and subtotal >= min_order_discount:
+        pooled_discount = nominal_fee
         final_fee = Decimal('0.00')
     else:
         floor_fee = Decimal('10.00') if option == DeliveryFeeRule.OPTION_SCHEDULED_POOLED else Decimal('20.00')
@@ -128,7 +122,6 @@ def calculate_delivery_quote(address, cart_subtotal, delivery_option, slot_id=No
         'base_fee': float(base_fee),
         'distance_fee': float(distance_fee),
         'pooled_discount': float(pooled_discount),
-        'membership_discount': float(membership_discount),
         'final_fee': float(final_fee),
         'applied_rule_id': rule_id,
         'distance_km': float(distance_km),
@@ -136,6 +129,5 @@ def calculate_delivery_quote(address, cart_subtotal, delivery_option, slot_id=No
         'is_free': final_fee == Decimal('0.00'),
         'delivery_option': option,
         'zone_id': zone.id,
-        'has_membership': has_membership,
         'explanation_message': explanation_message,
     }

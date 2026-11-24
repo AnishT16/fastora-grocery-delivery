@@ -8,7 +8,6 @@ django.setup()
 from django.test import Client
 from apps.accounts.models import User, Address
 from apps.products.models import Product, Category
-from apps.memberships.models import MembershipPlan, CustomerMembership
 from apps.delivery.models import DeliveryZone, DeliverySlot, DeliveryBatch, PooledOrder, DeliveryPartner
 from apps.orders.models import Order, OrderItem
 from apps.carts.models import Cart, CartItem
@@ -42,15 +41,11 @@ def verify_all_frontend():
     assert res_search.status_code == 200, f"Search failed: {res_search.status_code}"
     print("  • GET /search/?q=fresh: HTTP 200 OK")
 
-    # 2. Cart & Fastora Plus Membership
-    print("\n[2/7] Testing Cart & Fastora Plus Membership Plans...")
+    # 2. Cart & Delivery Economics
+    print("\n[2/7] Testing Cart & Delivery Economics...")
     res_cart = client.get('/cart/')
     assert res_cart.status_code == 200, f"Cart failed: {res_cart.status_code}"
     print("  • GET /cart/: HTTP 200 OK")
-
-    res_mem = client.get('/membership/')
-    assert res_mem.status_code == 200, f"Membership plans failed: {res_mem.status_code}"
-    print("  • GET /membership/ (Fastora Plus): HTTP 200 OK")
 
     res_sim = client.get('/delivery/check/')
     assert res_sim.status_code == 200, f"Delivery check failed: {res_sim.status_code}"

@@ -171,11 +171,11 @@ class DeliveryFeeRule(models.Model):
     )
     is_active = models.BooleanField(default=True)
 
-    def calculate_quote(self, order_subtotal, distance_km=2.0, has_membership=False):
+    def calculate_quote(self, order_subtotal, distance_km=2.0):
         subtotal_dec = Decimal(str(order_subtotal))
         dist_dec = Decimal(str(distance_km))
 
-        if has_membership or (self.min_order_for_discount and subtotal_dec >= self.min_order_for_discount):
+        if self.min_order_for_discount and subtotal_dec >= self.min_order_for_discount:
             return {
                 'base_fee': float(self.base_fee),
                 'distance_fee': float(dist_dec * self.per_km_fee),

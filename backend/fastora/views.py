@@ -4,7 +4,6 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 
 from apps.accounts.models import Address
-from apps.memberships.models import CustomerMembership, MembershipPlan
 from apps.carts.services import get_or_create_cart
 from apps.delivery.models import DeliveryZone
 from apps.delivery.services.slot_service import get_available_slots
@@ -82,32 +81,11 @@ def Grocery(request):
 
 def profile(request):
     addresses = []
-    active_membership = None
     if request.user.is_authenticated:
         addresses = Address.objects.filter(customer=request.user).order_by('-is_default', '-created_at')
-        active_membership = CustomerMembership.objects.filter(
-            customer=request.user,
-            status=CustomerMembership.STATUS_ACTIVE
-        ).select_related('plan').first()
 
     return render(request, 'accounts/profile.html', {
         'addresses': addresses,
-        'membership': active_membership,
-    })
-
-
-def membership_plans_view(request):
-    plans = MembershipPlan.objects.filter(is_active=True).order_by('price')
-    active_membership = None
-    if request.user.is_authenticated:
-        active_membership = CustomerMembership.objects.filter(
-            customer=request.user,
-            status=CustomerMembership.STATUS_ACTIVE
-        ).select_related('plan').first()
-
-    return render(request, 'memberships/plans.html', {
-        'plans': plans,
-        'active_membership': active_membership,
     })
 
 

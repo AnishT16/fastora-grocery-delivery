@@ -281,8 +281,8 @@
 
                 // Update labels
                 const pooledFee = quotes.SCHEDULED_POOLED.final_fee;
-                if (quotes.SCHEDULED_POOLED.membership_discount > 0 || pooledFee === 0) {
-                    pooledLabel.innerHTML = 'Fee: <span style="color:#00d68f; text-decoration:line-through; font-size:12px; color:#888;">₹15.00</span> <strong>FREE (Fastora Plus)</strong>';
+                if (pooledFee === 0) {
+                    pooledLabel.innerHTML = 'Fee: <span style="color:#00d68f; text-decoration:line-through; font-size:12px; color:#888;">₹15.00</span> <strong>FREE</strong>';
                 } else {
                     pooledLabel.textContent = `Fee: ₹${pooledFee.toFixed(2)}`;
                 }

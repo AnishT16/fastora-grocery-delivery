@@ -12,7 +12,6 @@ from django.utils import timezone
 from django.test import Client
 
 from apps.accounts.models import User
-from apps.memberships.models import MembershipPlan, CustomerMembership
 from apps.products.models import Category, Product
 from apps.inventory.models import Inventory
 from apps.inventory.services import reserve_stock, release_stock, confirm_stock_deduction
@@ -123,17 +122,9 @@ def run_checks():
     print(f"  • Scheduled Pooled Fee : ₹{q_pool['final_fee']} (Discount: -₹{q_pool['pooled_discount']})")
     assert q_pool['final_fee'] < q_exp['final_fee'], "Pooled delivery was not cheaper than Express!"
     print("  • Verified: Scheduled micro-delivery is cheaper than Express delivery.")
-    plan = MembershipPlan.objects.first()
-    CustomerMembership.objects.create(
-        customer=cust_user,
-        plan=plan,
-        start_date=timezone.now(),
-        end_date=timezone.now() + timedelta(days=30),
-        status=CustomerMembership.STATUS_ACTIVE
-    )
-    q_mem = calculate_delivery_quote({'postal_code': '411038'}, cart_subtotal=50.0, delivery_option='SCHEDULED_POOLED', user=cust_user)
-    assert q_mem['final_fee'] == 0.0
-    print(f"  • Fastora Plus Member Quote: ₹{q_mem['final_fee']} (100% Free delivery waiver applied)")
+    q_free = calculate_delivery_quote({'postal_code': '411038'}, cart_subtotal=600.0, delivery_option='SCHEDULED_POOLED')
+    assert q_free['final_fee'] == 0.0
+    print(f"  • Free Delivery Threshold Quote: ₹{q_free['final_fee']} (Order subtotal >= ₹349)")
     print("  ✅ Smart Delivery-Fee Engine working.")
 
     print("\n[8/8] Checking Neighbourhood Pooling & Dispatch Clustering...")

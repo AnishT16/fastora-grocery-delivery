@@ -7,7 +7,6 @@ from datetime import timedelta, time
 from decimal import Decimal
 
 from apps.accounts.models import User
-from apps.memberships.models import MembershipPlan
 from apps.products.models import Category, Product
 from apps.inventory.models import Inventory
 from apps.delivery.models import DeliveryZone, DeliverySlot, DeliveryFeeRule
@@ -402,23 +401,5 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS("Configured Slots and Smart Fee Rules for Pune Hubs."))
         self.stdout.write(self.style.SUCCESS("Configured Smart Delivery Fee Rules (Express + Pooled)."))
-
-        # 7. Membership Plan (SRS Section 3.4.5)
-        MembershipPlan.objects.update_or_create(
-            name='Fastora Plus Pass',
-            defaults={
-                'description': 'Enjoy free delivery on small & large orders, exclusive pooling priority, and special discounts!',
-                'price': Decimal('99.00'),
-                'duration_days': 30,
-                'benefit_rules': {
-                    'waive_delivery_fee': True,
-                    'free_delivery_min_order': 0.00,
-                    'delivery_discount_pct': 100.00,
-                    'priority_slots': True,
-                },
-                'is_active': True
-            }
-        )
-        self.stdout.write(self.style.SUCCESS("Created Fastora Plus Membership Plan."))
         self.stdout.write(self.style.SUCCESS("All Fastora seed data created successfully!"))
 

@@ -97,7 +97,7 @@ def create_order_from_cart(user, cart, address_id, delivery_option, slot_id=None
         zone_id = quote.get('zone_id')
         zone = DeliveryZone.objects.filter(id=zone_id).first() if zone_id else None
         delivery_fee = Decimal(str(quote.get('final_fee', '0.00')))
-        discount_amount = Decimal(str(quote.get('pooled_discount', '0.00'))) + Decimal(str(quote.get('membership_discount', '0.00')))
+        discount_amount = Decimal(str(quote.get('pooled_discount', '0.00')))
         total = subtotal + delivery_fee
 
         # validate COD availability

@@ -16,38 +16,8 @@
             </div>
         </div>
 
-        <!-- Membership Banner / Status -->
-        <div style="margin-bottom: 22px;">
-            {% if membership %}
-            <div style="background: linear-gradient(135deg, #0a2540, #1e3a8a); color: white; padding: 18px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(10,37,64,0.15);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <span style="background: rgba(0, 214, 143, 0.25); color: #00d68f; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px;">
-                        ACTIVE MEMBERSHIP
-                    </span>
-                    <span style="font-size: 12px; opacity: 0.85;">Renews {{ membership.end_date|date:"M d, Y" }}</span>
-                </div>
-                <h3 style="margin: 0 0 4px; font-size: 18px; color: #00d68f;">⚡ {{ membership.plan.name }}</h3>
-                <p style="margin: 0; font-size: 12.5px; opacity: 0.9; line-height: 1.4;">
-                    Enjoying 100% Free delivery on scheduled pooled orders & priority dark-store dispatch.
-                </p>
-            </div>
-            {% else %}
-            <div style="background: #f0fdf4; border: 1.5px solid #86efac; padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
-                <div>
-                    <h4 style="margin: 0 0 3px; font-size: 15px; color: #166534;">Join Fastora Plus 💎</h4>
-                    <p style="margin: 0; font-size: 12.5px; color: #15803d; line-height: 1.35;">
-                        Get 100% free delivery on all grocery orders with neighbourhood pooling.
-                    </p>
-                </div>
-                <a href="{% url 'membership_plans' %}" style="background: #00d68f; color: #0a2540; font-weight: 800; font-size: 13px; padding: 9px 16px; border-radius: 10px; text-decoration: none; white-space: nowrap;">
-                    View Plans
-                </a>
-            </div>
-            {% endif %}
-        </div>
-
         <!-- Account Info -->
-        <div style="border-top: 1px solid #f0f0f0; padding-top: 16px; font-size: 13.5px; line-height: 2; color: #475569;">
+        <div style="padding-top: 6px; font-size: 13.5px; line-height: 2; color: #475569;">
             <div><strong>Email:</strong> {{ request.user.email|default:'Not provided' }}</div>
             <div><strong>Phone:</strong> {{ request.user.phone|default:'Not provided' }}</div>
             <div><strong>Member Since:</strong> {{ request.user.date_joined|date:"M d, Y" }}</div>
@@ -140,10 +110,6 @@
         <div style="margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 18px; display: flex; flex-direction: column; gap: 10px;">
             <a href="{% url 'orders' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
                 <span>📦 My Order History</span>
-                <span>➔</span>
-            </a>
-            <a href="{% url 'membership_plans' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
-                <span>💎 Fastora Plus Membership</span>
                 <span>➔</span>
             </a>
             <a href="{% url 'delivery_check' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
