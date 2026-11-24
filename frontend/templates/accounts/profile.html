@@ -1,29 +1,179 @@
 {% extends 'base.html' %}
 
+{% block title %}My Profile | Fastora{% endblock %}
+
 {% block content %}
-<div class="container" style="max-width: 500px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
+<div class="container" style="max-width: 620px; margin: 30px auto; background: white; padding: 30px 25px; border-radius: 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.06);">
     {% if request.user.is_authenticated %}
-        <div style="text-align: center; margin-bottom: 25px;">
-            <div style="width: 70px; height: 70px; border-radius: 50%; background: #0a2540; color: #00d68f; font-size: 28px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+        <!-- User Avatar & Identity Header -->
+        <div style="text-align: center; margin-bottom: 22px;">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: #0a2540; color: #00d68f; font-size: 30px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; border: 2px solid #00d68f;">
                 {{ request.user.username|make_list|first|upper }}
             </div>
-            <h2 style="margin: 0; color: #0a2540;">{{ request.user.username }}</h2>
-            <p style="margin: 5px 0 0; color: #777; font-size: 14px;">{{ request.user.get_role_display }}</p>
+            <h2 style="margin: 0; color: #0a2540; font-size: 22px;">{{ request.user.username }}</h2>
+            <div style="margin-top: 4px; display: inline-block; background: #e0f2fe; color: #0369a1; padding: 3px 10px; border-radius: 6px; font-size: 12px; font-weight: 800; text-transform: uppercase;">
+                {{ request.user.get_role_display }}
+            </div>
         </div>
 
-        <div style="border-top: 1px solid #f0f0f0; padding-top: 20px; font-size: 14px; line-height: 2;">
+        <!-- Membership Banner / Status -->
+        <div style="margin-bottom: 22px;">
+            {% if membership %}
+            <div style="background: linear-gradient(135deg, #0a2540, #1e3a8a); color: white; padding: 18px 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(10,37,64,0.15);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <span style="background: rgba(0, 214, 143, 0.25); color: #00d68f; font-size: 11px; font-weight: 900; padding: 3px 8px; border-radius: 6px; letter-spacing: 0.5px;">
+                        ACTIVE MEMBERSHIP
+                    </span>
+                    <span style="font-size: 12px; opacity: 0.85;">Renews {{ membership.end_date|date:"M d, Y" }}</span>
+                </div>
+                <h3 style="margin: 0 0 4px; font-size: 18px; color: #00d68f;">⚡ {{ membership.plan.name }}</h3>
+                <p style="margin: 0; font-size: 12.5px; opacity: 0.9; line-height: 1.4;">
+                    Enjoying 100% Free delivery on scheduled pooled orders & priority dark-store dispatch.
+                </p>
+            </div>
+            {% else %}
+            <div style="background: #f0fdf4; border: 1.5px solid #86efac; padding: 16px 20px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                <div>
+                    <h4 style="margin: 0 0 3px; font-size: 15px; color: #166534;">Join Fastora Plus 💎</h4>
+                    <p style="margin: 0; font-size: 12.5px; color: #15803d; line-height: 1.35;">
+                        Get 100% free delivery on all grocery orders with neighbourhood pooling.
+                    </p>
+                </div>
+                <a href="{% url 'membership_plans' %}" style="background: #00d68f; color: #0a2540; font-weight: 800; font-size: 13px; padding: 9px 16px; border-radius: 10px; text-decoration: none; white-space: nowrap;">
+                    View Plans
+                </a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Account Info -->
+        <div style="border-top: 1px solid #f0f0f0; padding-top: 16px; font-size: 13.5px; line-height: 2; color: #475569;">
             <div><strong>Email:</strong> {{ request.user.email|default:'Not provided' }}</div>
             <div><strong>Phone:</strong> {{ request.user.phone|default:'Not provided' }}</div>
             <div><strong>Member Since:</strong> {{ request.user.date_joined|date:"M d, Y" }}</div>
         </div>
 
-        <div style="margin-top: 30px; display: flex; gap: 10px;">
+        <!-- Saved Delivery Addresses Section -->
+        <div style="margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                <h3 style="margin: 0; font-size: 16px; color: var(--primary);">📍 Saved Delivery Addresses</h3>
+                <button onclick="toggleNewAddressForm()" style="background: none; border: none; color: #0284c7; font-weight: 700; font-size: 13px; cursor: pointer;">
+                    + Add New
+                </button>
+            </div>
+
+            <div id="address-list" style="display: flex; flex-direction: column; gap: 10px;">
+                {% if addresses %}
+                    {% for addr in addresses %}
+                    <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px 16px; background: {% if addr.is_default %}#f8fafc{% else %}white{% endif %}; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                        <div>
+                            <div style="font-weight: 700; font-size: 13.5px; color: #1e293b; display: flex; align-items: center; gap: 8px;">
+                                <span>{{ addr.title|default:'Home' }}</span>
+                                {% if addr.is_default %}
+                                    <span style="background: #dcfce7; color: #15803d; font-size: 10.5px; font-weight: 800; padding: 2px 6px; border-radius: 4px;">DEFAULT</span>
+                                {% endif %}
+                            </div>
+                            <div style="font-size: 12.5px; color: #64748b; margin-top: 4px; line-height: 1.4;">
+                                {{ addr.street_address }}{% if addr.landmark %}, {{ addr.landmark }}{% endif %}, {{ addr.city }}, {{ addr.state }} - <strong>{{ addr.postal_code }}</strong>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                            {% if not addr.is_default %}
+                                <button onclick="setDefaultAddress({{ addr.id }})" style="background: none; border: none; color: #0284c7; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0;">
+                                    Set Default
+                                </button>
+                            {% endif %}
+                            <button onclick="deleteAddress({{ addr.id }})" style="background: none; border: none; color: #dc2626; font-size: 12px; font-weight: 700; cursor: pointer; padding: 0;">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div style="text-align: center; padding: 18px; background: #f8fafc; border-radius: 10px; color: #94a3b8; font-size: 13px;">
+                        No delivery addresses saved yet. Add one for quick one-click checkout.
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- New Address Inline Form -->
+            <div id="new-address-form-box" style="display: none; margin-top: 14px; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 14px; padding: 16px;">
+                <h4 style="margin: 0 0 12px; font-size: 14px; color: var(--primary);">Add Delivery Address</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px;">
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px;">Label / Title</label>
+                        <input type="text" id="addr_title" placeholder="Home, Office, etc." style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px;">Postal Code (PIN)</label>
+                        <input type="text" id="addr_postal_code" placeholder="411038" value="411038" style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div style="grid-column: 1 / -1;">
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px;">Street Address / Flat / Building</label>
+                        <input type="text" id="addr_street" placeholder="e.g. Flat 402, Green Valley Apartments" style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px;">City</label>
+                        <input type="text" id="addr_city" value="Pune" style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 11.5px; font-weight: 700; color: #475569; margin-bottom: 4px;">State</label>
+                        <input type="text" id="addr_state" value="Maharashtra" style="width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    <div style="grid-column: 1 / -1; display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                        <input type="checkbox" id="addr_is_default" checked>
+                        <label for="addr_is_default" style="font-size: 12.5px; color: #475569; cursor: pointer;">Set as default delivery address</label>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 14px;">
+                    <button onclick="saveNewAddress()" style="background: var(--accent); color: var(--primary); border: none; font-weight: 800; padding: 9px 18px; border-radius: 8px; cursor: pointer; font-size: 13px;">
+                        Save Address
+                    </button>
+                    <button onclick="toggleNewAddressForm()" style="background: #e2e8f0; color: #475569; border: none; font-weight: 600; padding: 9px 14px; border-radius: 8px; cursor: pointer; font-size: 13px;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Shortcuts & Portals -->
+        <div style="margin-top: 25px; border-top: 1px solid #f0f0f0; padding-top: 18px; display: flex; flex-direction: column; gap: 10px;">
+            <a href="{% url 'orders' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>📦 My Order History</span>
+                <span>➔</span>
+            </a>
+            <a href="{% url 'membership_plans' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>💎 Fastora Plus Membership</span>
+                <span>➔</span>
+            </a>
+            <a href="{% url 'delivery_check' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 14px;">
+                <span>⚡ Smart Delivery Economics Calculator</span>
+                <span>➔</span>
+            </a>
+
+            <!-- Role Specific Portals -->
+            {% if request.user.role == 'delivery_partner' %}
+            <a href="{% url 'rider_dashboard' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #eff6ff; border: 1.5px solid #93c5fd; border-radius: 12px; color: #1d4ed8; text-decoration: none; font-weight: 800; font-size: 14px;">
+                <span>🚴 Rider Delivery Portal</span>
+                <span>➔</span>
+            </a>
+            {% endif %}
+
+            {% if request.user.role == 'dispatcher' or request.user.is_staff %}
+            <a href="{% url 'dispatcher_dashboard' %}" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: #f5f3ff; border: 1.5px solid #c4b5fd; border-radius: 12px; color: #6d28d9; text-decoration: none; font-weight: 800; font-size: 14px;">
+                <span>📊 Dark Store Operations & Dispatcher Dashboard</span>
+                <span>➔</span>
+            </a>
+            {% endif %}
+        </div>
+
+        <div style="margin-top: 25px; display: flex; gap: 10px;">
             <a href="{% url 'logout' %}" style="flex: 1; text-align: center; background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none;">
                 Log Out
             </a>
             {% if request.user.is_staff %}
                 <a href="/admin/" style="flex: 1; text-align: center; background: #0a2540; color: white; padding: 12px; border-radius: 10px; font-weight: 700; text-decoration: none;">
-                    Admin Panel
+                    Django Admin
                 </a>
             {% endif %}
         </div>
@@ -43,4 +193,90 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+    function toggleNewAddressForm() {
+        const box = document.getElementById('new-address-form-box');
+        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'block' : 'none';
+    }
+
+    async function saveNewAddress() {
+        const title = document.getElementById('addr_title').value.trim() || 'Home';
+        const street = document.getElementById('addr_street').value.trim();
+        const city = document.getElementById('addr_city').value.trim() || 'Pune';
+        const state = document.getElementById('addr_state').value.trim() || 'Maharashtra';
+        const postalCode = document.getElementById('addr_postal_code').value.trim() || '411038';
+        const isDefault = document.getElementById('addr_is_default').checked;
+
+        if (!street) {
+            alert('Please enter a street address.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/accounts/api/addresses/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({
+                    title: title,
+                    street_address: street,
+                    city: city,
+                    state: state,
+                    postal_code: postalCode,
+                    is_default: isDefault
+                })
+            });
+
+            if (res.ok) {
+                showToast('Address saved successfully!', '📍');
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                const err = await res.json();
+                alert(err.detail || 'Failed to save address.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Network error saving address.');
+        }
+    }
+
+    async function setDefaultAddress(addrId) {
+        try {
+            const res = await fetch(`/accounts/api/addresses/${addrId}/set-default/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                }
+            });
+            if (res.ok) {
+                showToast('Default address updated!', '✅');
+                setTimeout(() => window.location.reload(), 500);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function deleteAddress(addrId) {
+        if (!confirm('Are you sure you want to remove this address?')) return;
+        try {
+            const res = await fetch(`/accounts/api/addresses/${addrId}/`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                }
+            });
+            if (res.ok) {
+                showToast('Address deleted', '🗑️');
+                setTimeout(() => window.location.reload(), 500);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    }
+</script>
 {% endblock %}

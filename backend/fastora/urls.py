@@ -1,5 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 urlpatterns = [
@@ -20,8 +22,9 @@ urlpatterns = [
     path('delivery/', include('apps.delivery.urls')),
     path('accounts/', include('apps.accounts.urls')),
 
-    # Frontend pages
+    # Frontend Storefront & Dynamic Category pages
     path('', views.indexfile, name='indexfile'),
+    path('category/<slug:slug>/', views.category_products, name='category_products'),
     path('beauty/', views.beauty, name='beauty'),
     path('electronics/', views.electronics, name='electronics'),
     path('gifting/', views.gifting, name='gifting'),
@@ -31,5 +34,19 @@ urlpatterns = [
     path('fruits/', views.fruits, name='fruits'),
     path('Grocery/', views.Grocery, name='Grocery'),
     path('profile/', views.profile, name='profile'),
+    path('membership/', views.membership_plans_view, name='membership_plans'),
+    path('plus/', views.membership_plans_view, name='fastora_plus'),
+    path('delivery/rider/', views.rider_dashboard_view, name='rider_dashboard'),
+    path('dispatcher/', views.dispatcher_dashboard_view, name='dispatcher_dashboard'),
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
     path('search/', views.search, name='search'),
+
+    # Cart, Checkout & Orders
+    path('cart/', views.cart_view, name='cart'),
+    path('checkout/', views.checkout_view, name='checkout'),
+    path('orders/', views.orders_view, name='orders'),
+    path('orders/<int:pk>/', views.order_detail_view, name='order_detail'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

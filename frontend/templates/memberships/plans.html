@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}Fastora Plus Membership | Free Delivery & Smart Savings{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 25px auto;">
+    
+    <!-- Hero Header -->
+    <div style="background: linear-gradient(135deg, #0a2540 0%, #1a4a7b 50%, #064e3b 100%); color: white; padding: 35px 25px; border-radius: 24px; text-align: center; margin-bottom: 30px; box-shadow: 0 8px 30px rgba(10,37,64,0.18); position: relative; overflow: hidden;">
+        <div style="display: inline-block; background: rgba(0, 214, 143, 0.2); color: #00d68f; padding: 4px 14px; border-radius: 20px; font-size: 13px; font-weight: 800; margin-bottom: 12px; letter-spacing: 0.5px; border: 1px solid rgba(0,214,143,0.35);">
+            FASTORA PLUS MEMBERSHIP
+        </div>
+        <h1 style="margin: 0 0 10px; font-size: 32px; font-weight: 900;">
+            Smarter Deliveries. <span style="color: var(--accent);">Zero Delivery Fees.</span>
+        </h1>
+        <p style="margin: 0 auto; max-width: 580px; font-size: 15px; opacity: 0.9; line-height: 1.5;">
+            Join Fastora Plus and enjoy 100% free delivery on scheduled neighbourhood pooled orders, zero surge pricing, and VIP priority dark-store dispatch.
+        </p>
+
+        {% if active_membership %}
+        <div style="margin-top: 20px; display: inline-block; background: rgba(255,255,255,0.15); backdrop-filter: blur(8px); padding: 8px 18px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.25); font-size: 13.5px; font-weight: 700;">
+            ✅ You are actively subscribed to <strong>{{ active_membership.plan.name }}</strong> ({{ active_membership.days_remaining }} days remaining)
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Key Benefits Row -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 35px;">
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🛵</div>
+            <h4 style="margin: 0 0 4px; font-size: 15px; color: var(--primary);">₹0 Delivery Fee</h4>
+            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.4;">Unlimited free delivery on all neighbourhood pooled grocery orders.</p>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+            <h4 style="margin: 0 0 4px; font-size: 15px; color: var(--primary);">Priority Dispatch</h4>
+            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.4;">First-in-line picking and packing at our dark-store hubs.</p>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🛡️</div>
+            <h4 style="margin: 0 0 4px; font-size: 15px; color: var(--primary);">Zero Surge Rates</h4>
+            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.4;">No rain fees, peak rush fees, or distance penalties.</p>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🎁</div>
+            <h4 style="margin: 0 0 4px; font-size: 15px; color: var(--primary);">Exclusive Drops</h4>
+            <p style="margin: 0; font-size: 12.5px; color: #64748b; line-height: 1.4;">Early access to farm-fresh arrivals and seasonal discounts.</p>
+        </div>
+    </div>
+
+    <!-- Membership Plans Grid -->
+    <h2 style="text-align: center; margin: 0 0 20px; font-size: 22px; color: var(--primary);">
+        Select Your Fastora Plus Plan
+    </h2>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 22px; margin-bottom: 35px;">
+        {% if plans %}
+            {% for plan in plans %}
+            <div style="background: white; border: 2px solid {% if forloop.first %}var(--accent){% else %}#e2e8f0{% endif %}; border-radius: 20px; padding: 25px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; position: relative;">
+                {% if forloop.first %}
+                <div style="position: absolute; top: -12px; right: 20px; background: #00d68f; color: #0a2540; font-size: 11px; font-weight: 900; padding: 3px 10px; border-radius: 20px; text-transform: uppercase;">
+                    POPULAR CHOICE
+                </div>
+                {% endif %}
+
+                <div>
+                    <h3 style="margin: 0 0 8px; font-size: 20px; color: var(--primary);">{{ plan.name }}</h3>
+                    <p style="margin: 0 0 16px; font-size: 13px; color: #64748b; line-height: 1.4;">
+                        {{ plan.description|default:'Full membership privileges including zero delivery fee waivers.' }}
+                    </p>
+
+                    <div style="display: flex; align-items: baseline; gap: 6px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 15px;">
+                        <span style="font-size: 32px; font-weight: 900; color: var(--primary);">₹{{ plan.price }}</span>
+                        <span style="font-size: 13px; color: #64748b;">/ {{ plan.duration_days }} days</span>
+                    </div>
+
+                    <ul style="margin: 0 0 25px; padding-left: 18px; font-size: 13px; color: #475569; line-height: 1.9;">
+                        <li><strong>100% Free Delivery</strong> on scheduled pooling</li>
+                        <li>Valid across all Pune serviceable hubs</li>
+                        <li>Instant dark-store order batching</li>
+                        <li>Calculated savings of ~₹300+ per month</li>
+                    </ul>
+                </div>
+
+                <div>
+                    {% if active_membership and active_membership.plan.id == plan.id %}
+                        <button disabled style="width: 100%; background: #dcfce7; color: #166534; border: none; font-weight: 800; font-size: 14px; padding: 13px; border-radius: 12px; cursor: default;">
+                            ✓ Currently Active Plan
+                        </button>
+                    {% else %}
+                        {% if request.user.is_authenticated %}
+                            <button onclick="subscribeToPlan({{ plan.id }}, '{{ plan.name }}')" style="width: 100%; background: var(--accent); color: var(--primary); border: none; font-weight: 900; font-size: 15px; padding: 13px; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,214,143,0.3); transition: transform 0.2s;">
+                                Get {{ plan.name }} ➔
+                            </button>
+                        {% else %}
+                            <a href="{% url 'login' %}?next={% url 'membership_plans' %}" style="display: block; text-align: center; width: 100%; box-sizing: border-box; background: var(--primary); color: white; text-decoration: none; font-weight: 800; font-size: 14px; padding: 13px; border-radius: 12px;">
+                                Log In to Subscribe
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: white; border-radius: 16px; color: #64748b;">
+                Membership plans are currently updating. Please check back shortly.
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- FAQ Section -->
+    <div style="background: white; border-radius: 20px; padding: 25px; box-shadow: 0 2px 10px rgba(0,0,0,0.04);">
+        <h3 style="margin: 0 0 15px; font-size: 17px; color: var(--primary);">Frequently Asked Questions</h3>
+        <div style="font-size: 13.5px; color: #475569; line-height: 1.6; display: flex; flex-direction: column; gap: 14px;">
+            <div>
+                <strong>How does the zero delivery fee work?</strong><br>
+                Whenever you place an order choosing our eco-friendly "Scheduled Pooled" micro-delivery, Fastora waives the entire delivery fee automatically at checkout.
+            </div>
+            <div>
+                <strong>Can I cancel my membership?</strong><br>
+                Memberships stay active for the prepaid duration (e.g. 30 days) and do not auto-renew with hidden surprises.
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    async function subscribeToPlan(planId, planName) {
+        if (!confirm(`Subscribe to ${planName}? Benefits will activate immediately on your account.`)) {
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/membership/subscribe/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ plan_id: planId })
+            });
+
+            if (res.ok) {
+                showToast(`Welcome to ${planName}! 🎉`, '💎');
+                setTimeout(() => window.location.reload(), 800);
+            } else {
+                const data = await res.json();
+                alert(data.detail || data.error || 'Failed to activate membership subscription.');
+            }
+        } catch (e) {
+            console.error('Subscription error', e);
+            alert('A network error occurred. Please try again.');
+        }
+    }
+</script>
+{% endblock %}

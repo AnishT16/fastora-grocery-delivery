@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block title %}Dark Store Operations & Dispatcher Dashboard | Fastora Ops{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 960px; margin: 25px auto;">
+    
+    <!-- Dispatcher Top Header -->
+    <div style="background: linear-gradient(135deg, #0a2540 0%, #1e1b4b 100%); color: white; padding: 25px 28px; border-radius: 20px; box-shadow: 0 6px 20px rgba(10,37,64,0.18); margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <div style="display: inline-block; background: rgba(0, 214, 143, 0.2); color: #00d68f; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 800; margin-bottom: 6px; letter-spacing: 0.5px;">
+                DARK STORE LOGISTICS ENGINE
+            </div>
+            <h1 style="margin: 0 0 4px; font-size: 24px;">Dark Store Operations & Dispatcher Console</h1>
+            <p style="margin: 0; font-size: 13px; opacity: 0.85;">
+                Fulfillment Hub: <strong>Pune Central Dark Store</strong> • Operator: {{ request.user.username }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button onclick="runBatchMatching()" id="btn-run-matching" style="background: var(--accent); color: var(--primary); border: none; font-weight: 900; padding: 10px 18px; border-radius: 10px; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,214,143,0.3); display: flex; align-items: center; gap: 6px;">
+                ⚡ Run Batch Matching
+            </button>
+            <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 700; cursor: pointer;">
+                🔄 Refresh
+            </button>
+        </div>
+    </div>
+
+    <!-- Live KPI Metrics Grid (SRS Section 3.7 FR-67) -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 4px solid #00d68f;">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Smart Pooling Rate</div>
+            <div style="font-size: 26px; font-weight: 900; color: #007a4d; margin-top: 4px;">{{ metrics.pooled_rate_pct|default:'0' }}%</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">{{ metrics.pooled_orders_count|default:'0' }} of {{ metrics.total_orders|default:'0' }} orders pooled</div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 4px solid #0284c7;">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Active Batches</div>
+            <div style="font-size: 26px; font-weight: 900; color: #0284c7; margin-top: 4px;">{{ metrics.active_batches|default:'0' }}</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">In matching or out on route</div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 4px solid #f59e0b;">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Pending Pooled Orders</div>
+            <div style="font-size: 26px; font-weight: 900; color: #d97706; margin-top: 4px;">{{ metrics.pending_pooled_orders|default:'0' }}</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Ready for next batch cycle</div>
+        </div>
+
+        <div style="background: white; border-radius: 16px; padding: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border-left: 4px solid #8b5cf6;">
+            <div style="font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase;">Available Riders</div>
+            <div style="font-size: 26px; font-weight: 900; color: #7c3aed; margin-top: 4px;">{{ metrics.available_riders|default:'0' }}</div>
+            <div style="font-size: 11.5px; color: #64748b; margin-top: 2px;">Ready for assignment</div>
+        </div>
+    </div>
+
+    <!-- Batches Operations Section -->
+    <div style="background: white; border-radius: 20px; padding: 24px; box-shadow: 0 4px 18px rgba(0,0,0,0.05); margin-bottom: 25px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+            <h2 style="margin: 0; font-size: 18px; color: var(--primary);">📦 Delivery Batches Management</h2>
+            <span style="font-size: 13px; color: #64748b;">Showing recent fulfillment batches</span>
+        </div>
+
+        {% if batches %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            {% for b in batches %}
+            <div style="border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; background: {% if b.status == 'RELEASED' %}#eff6ff{% else %}#f8fafc{% endif %};">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <span style="font-size: 11px; font-weight: 800; color: #64748b; text-transform: uppercase;">BATCH #{{ b.id }}</span>
+                        <h4 style="margin: 2px 0 0; font-size: 16px; color: var(--primary);">{{ b.zone.name }} • {{ b.pooled_orders.count }} Orders Pooled</h4>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="background: {% if b.status == 'COMPLETED' %}#dcfce7; color: #166534;{% elif b.status == 'RELEASED' %}#dbeafe; color: #1e40af;{% else %}#fef3c7; color: #92400e;{% endif %} padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 800;">
+                            {{ b.get_status_display }}
+                        </span>
+
+                        {% if b.status == 'PENDING_RELEASE' or b.status == 'MATCHING' %}
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <select id="rider-select-{{ b.id }}" style="padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12.5px; background: white;">
+                                {% for r in riders %}
+                                    <option value="{{ r.user.id }}">{{ r.user.username }} ({{ r.availability_status }})</option>
+                                {% empty %}
+                                    <option value="">No registered riders</option>
+                                {% endfor %}
+                            </select>
+
+                            <button onclick="releaseBatch({{ b.id }})" style="background: var(--accent); color: var(--primary); border: none; font-weight: 800; font-size: 12.5px; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                                Dispatch Batch ➔
+                            </button>
+                        </div>
+                        {% else %}
+                        <div style="font-size: 12.5px; color: #475569;">
+                            Rider: <strong>{{ b.delivery_partner.username|default:'Unassigned' }}</strong>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Pooled Orders in this batch -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;">
+                    {% for po in b.pooled_orders.all %}
+                    <span style="background: white; border: 1px solid #cbd5e1; padding: 4px 10px; border-radius: 6px; font-size: 12px; color: #334155;">
+                        Stop {{ po.sequence }}: Order #{{ po.order.id }} ({{ po.order.customer.username }}) - <strong>{{ po.status }}</strong>
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 40px; background: #f8fafc; border-radius: 12px; color: #64748b;">
+            <div style="font-size: 40px; margin-bottom: 10px;">📦</div>
+            <p style="margin: 0; font-size: 14px;">No delivery batches created yet. Click "Run Batch Matching" to group pending orders.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Quick Navigation Bar -->
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <a href="{% url 'profile' %}" style="background: white; border: 1px solid #cbd5e1; color: var(--primary); padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13.5px;">
+            Profile
+        </a>
+        <a href="/admin/" style="background: var(--primary); color: white; padding: 10px 18px; border-radius: 10px; text-decoration: none; font-weight: 700; font-size: 13.5px;">
+            Open Django Admin ➔
+        </a>
+    </div>
+
+</div>
+
+<script>
+    async function runBatchMatching() {
+        const btn = document.getElementById('btn-run-matching');
+        btn.disabled = true;
+        btn.textContent = 'Clustering Orders...';
+
+        try {
+            const res = await fetch('/api/admin/delivery-batches/run-matching/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({})
+            });
+
+            const data = await res.json();
+            if (res.ok) {
+                showToast(data.message || 'Batch matching completed!', '⚡');
+                setTimeout(() => window.location.reload(), 700);
+            } else {
+                alert(data.error || 'Failed to run batch matching.');
+                btn.disabled = false;
+                btn.textContent = '⚡ Run Batch Matching';
+            }
+        } catch (e) {
+            console.error('Batch matching error', e);
+            alert('Network error executing batch matching.');
+            btn.disabled = false;
+            btn.textContent = '⚡ Run Batch Matching';
+        }
+    }
+
+    async function releaseBatch(batchId) {
+        const select = document.getElementById(`rider-select-${batchId}`);
+        const riderId = select ? select.value : null;
+
+        if (!riderId) {
+            alert('Please select an available delivery partner to assign this batch.');
+            return;
+        }
+
+        try {
+            const res = await fetch(`/api/admin/delivery-batches/${batchId}/release/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+                body: JSON.stringify({ delivery_partner_id: parseInt(riderId) })
+            });
+
+            if (res.ok) {
+                showToast(`Batch #${batchId} released to rider!`, '🚀');
+                setTimeout(() => window.location.reload(), 600);
+            } else {
+                const err = await res.json();
+                alert(err.error || 'Failed to release batch.');
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Network error releasing batch.');
+        }
+    }
+</script>
+{% endblock %}
