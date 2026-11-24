@@ -65,33 +65,36 @@
 
             <!-- Step 2: Delivery Speed & Smart Pooling -->
             <div style="background: white; border-radius: 18px; padding: 22px; box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
-                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                    <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">2</div>
-                    <h3 style="margin: 0; font-size: 17px; color: var(--primary);">Delivery Option</h3>
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 13px;">2</div>
+                        <h3 style="margin: 0; font-size: 17px; color: var(--primary);">Choose Delivery Speed</h3>
+                    </div>
+                    <span style="font-size: 12px; color: #dc2626; font-weight: 700;">* Please Select One</span>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                    <!-- Scheduled Micro-Delivery (Pooled) -->
-                    <label id="opt-pooled-card" style="border: 2px solid var(--accent); background: #f0fdf4; border-radius: 14px; padding: 16px; cursor: pointer; position: relative;">
-                        <input type="radio" name="delivery_option" value="SCHEDULED_POOLED" checked onchange="onDeliveryOptionChange(this)" style="position: absolute; top: 14px; right: 14px;">
-                        <div style="display: inline-block; background: var(--accent); color: var(--primary); font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px;">RECOMMENDED • SAVE UP TO ₹40</div>
-                        <h4 style="margin: 0 0 4px; font-size: 15px; color: #111;">Neighbourhood Pooled</h4>
-                        <p style="margin: 0; font-size: 12.5px; color: #555; line-height: 1.4;">Batched with nearby orders in your area. Greener & lowest delivery fee.</p>
-                        <div id="pooled-fee-label" style="font-size: 14px; font-weight: 800; color: #007a4d; margin-top: 10px;">Fee: ₹10.00</div>
-                    </label>
-
                     <!-- Express Delivery -->
-                    <label id="opt-express-card" style="border: 2px solid #e2e8f0; background: white; border-radius: 14px; padding: 16px; cursor: pointer; position: relative;">
+                    <label id="opt-express-card" style="border: 2px solid #e2e8f0; background: white; border-radius: 14px; padding: 16px; cursor: pointer; position: relative; transition: all 0.2s;">
                         <input type="radio" name="delivery_option" value="EXPRESS" onchange="onDeliveryOptionChange(this)" style="position: absolute; top: 14px; right: 14px;">
                         <div style="display: inline-block; background: #e2e8f0; color: #444; font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px;">LIGHTNING FAST</div>
                         <h4 style="margin: 0 0 4px; font-size: 15px; color: #111;">Express 15 Mins</h4>
                         <p style="margin: 0; font-size: 12.5px; color: #555; line-height: 1.4;">Direct dedicated rider dispatched from hub straight to your doorstep.</p>
                         <div id="express-fee-label" style="font-size: 14px; font-weight: 800; color: #111; margin-top: 10px;">Fee: ₹35.00</div>
                     </label>
+
+                    <!-- Scheduled Micro-Delivery (Pooled) -->
+                    <label id="opt-pooled-card" style="border: 2px solid #e2e8f0; background: white; border-radius: 14px; padding: 16px; cursor: pointer; position: relative; transition: all 0.2s;">
+                        <input type="radio" name="delivery_option" value="SCHEDULED_POOLED" onchange="onDeliveryOptionChange(this)" style="position: absolute; top: 14px; right: 14px;">
+                        <div style="display: inline-block; background: #e2e8f0; color: #444; font-size: 10px; font-weight: 900; padding: 2px 7px; border-radius: 6px; margin-bottom: 6px;">SAVE UP TO ₹40</div>
+                        <h4 style="margin: 0 0 4px; font-size: 15px; color: #111;">Neighbourhood Pooled</h4>
+                        <p style="margin: 0; font-size: 12.5px; color: #555; line-height: 1.4;">Batched with nearby orders in your area. Greener & lowest delivery fee.</p>
+                        <div id="pooled-fee-label" style="font-size: 14px; font-weight: 800; color: #007a4d; margin-top: 10px;">Fee: ₹10.00</div>
+                    </label>
                 </div>
 
                 <!-- Slot Selector for Pooled Delivery -->
-                <div id="slot-picker-container" style="margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
+                <div id="slot-picker-container" style="display: none; margin-top: 20px; padding-top: 16px; border-top: 1px dashed #e2e8f0;">
                     <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 8px;">
                         <label style="font-size: 13.5px; font-weight: 700; color: #333;">
                             Select Smart Delivery Window (Max 1–2 Hours):
@@ -167,12 +170,12 @@
 
             <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px; color: #555;">
                 <span>Delivery Fee</span>
-                <span id="summary-delivery-fee" style="font-weight: 700; color: #007a4d;">₹10.00</span>
+                <span id="summary-delivery-fee" style="font-weight: 700; color: #64748b;">Please select</span>
             </div>
 
-            <div id="summary-savings-row" style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: #007a4d;">
+            <div id="summary-savings-row" style="display: none; justify-content: space-between; font-size: 13px; margin-bottom: 10px; color: #007a4d;">
                 <span>⚡ Pooling Savings</span>
-                <span id="summary-savings">-₹25.00</span>
+                <span id="summary-savings">-₹0.00</span>
             </div>
 
             <div style="border-top: 1px dashed #ddd; margin: 15px 0; padding-top: 15px; display: flex; justify-content: space-between; font-size: 18px; font-weight: 900; color: var(--primary);">
@@ -201,7 +204,7 @@
         SCHEDULED_POOLED: { final_fee: 10.00, pooled_discount: 25.00, membership_discount: 0.00, is_serviceable: true },
         EXPRESS: { final_fee: 35.00, pooled_discount: 0.00, membership_discount: 0.00, is_serviceable: true }
     };
-    let currentDeliveryFee = 10.00;
+    let currentDeliveryFee = null;
 
     function getSelectedPostalCode() {
         const streetInput = document.getElementById('new_street');
@@ -287,15 +290,18 @@
                 const expressFee = quotes.EXPRESS.final_fee;
                 expressLabel.textContent = `Fee: ₹${expressFee.toFixed(2)}`;
 
-                // Update current active option fee
+                // Update current active option fee if user has selected one
                 const selectedOptRadio = document.querySelector('input[name="delivery_option"]:checked');
-                const selectedOpt = selectedOptRadio ? selectedOptRadio.value : 'SCHEDULED_POOLED';
-                currentDeliveryFee = (selectedOpt === 'SCHEDULED_POOLED') ? pooledFee : expressFee;
-
-                const discount = quotes.SCHEDULED_POOLED.pooled_discount || 0;
-                const savingsEl = document.getElementById('summary-savings');
-                if (savingsEl) {
-                    savingsEl.textContent = `-₹${discount.toFixed(2)}`;
+                if (selectedOptRadio) {
+                    const selectedOpt = selectedOptRadio.value;
+                    currentDeliveryFee = (selectedOpt === 'SCHEDULED_POOLED') ? pooledFee : expressFee;
+                    const discount = quotes.SCHEDULED_POOLED.pooled_discount || 0;
+                    const savingsEl = document.getElementById('summary-savings');
+                    if (savingsEl && selectedOpt === 'SCHEDULED_POOLED') {
+                        savingsEl.textContent = `-₹${discount.toFixed(2)}`;
+                    }
+                } else {
+                    currentDeliveryFee = null;
                 }
             }
         } catch (err) {
@@ -311,6 +317,8 @@
         const expressCard = document.getElementById('opt-express-card');
         const slotContainer = document.getElementById('slot-picker-container');
         const savingsRow = document.getElementById('summary-savings-row');
+        const errorDiv = document.getElementById('checkout-error');
+        if (errorDiv) errorDiv.style.display = 'none';
 
         if (isPooled) {
             pooledCard.style.borderColor = 'var(--accent)';
@@ -319,7 +327,6 @@
             expressCard.style.background = 'white';
             if (slotContainer) slotContainer.style.display = 'block';
             currentDeliveryFee = quotes.SCHEDULED_POOLED.final_fee;
-            if (savingsRow) savingsRow.style.display = 'flex';
         } else {
             expressCard.style.borderColor = 'var(--primary)';
             expressCard.style.background = '#f8fafc';
@@ -327,21 +334,41 @@
             pooledCard.style.background = 'white';
             if (slotContainer) slotContainer.style.display = 'none';
             currentDeliveryFee = quotes.EXPRESS.final_fee;
-            if (savingsRow) savingsRow.style.display = 'none';
         }
 
         updateTotals();
     }
 
     function updateTotals() {
-        const total = cartSubtotal + currentDeliveryFee;
         const feeEl = document.getElementById('summary-delivery-fee');
-        if (feeEl) {
-            feeEl.textContent = (currentDeliveryFee === 0) ? 'FREE' : `₹${currentDeliveryFee.toFixed(2)}`;
-        }
         const totalEl = document.getElementById('summary-total-due');
-        if (totalEl) {
-            totalEl.textContent = `₹${total.toFixed(2)}`;
+        const savingsRow = document.getElementById('summary-savings-row');
+        const selectedOptRadio = document.querySelector('input[name="delivery_option"]:checked');
+
+        if (currentDeliveryFee !== null && selectedOptRadio) {
+            if (feeEl) {
+                feeEl.textContent = (currentDeliveryFee === 0) ? 'FREE' : `₹${currentDeliveryFee.toFixed(2)}`;
+                feeEl.style.color = '#007a4d';
+            }
+            const total = cartSubtotal + currentDeliveryFee;
+            if (totalEl) {
+                totalEl.textContent = `₹${total.toFixed(2)}`;
+            }
+            if (savingsRow) {
+                const discount = quotes.SCHEDULED_POOLED.pooled_discount || 0;
+                savingsRow.style.display = (selectedOptRadio.value === 'SCHEDULED_POOLED' && discount > 0) ? 'flex' : 'none';
+            }
+        } else {
+            if (feeEl) {
+                feeEl.textContent = 'Please select option';
+                feeEl.style.color = '#64748b';
+            }
+            if (totalEl) {
+                totalEl.textContent = `₹${cartSubtotal.toFixed(2)}`;
+            }
+            if (savingsRow) {
+                savingsRow.style.display = 'none';
+            }
         }
     }
 
@@ -375,11 +402,27 @@
             return;
         }
 
-        // 2. Delivery Option & Slot
+        // 2. Delivery Option & Slot Validation (must be selected by person)
         const deliveryOptRadio = document.querySelector('input[name="delivery_option"]:checked');
-        const deliveryOption = deliveryOptRadio ? deliveryOptRadio.value : 'SCHEDULED_POOLED';
+        if (!deliveryOptRadio) {
+            errorDiv.textContent = '⚠️ Please select a delivery option (Express 15 Mins or Smart Neighbourhood Pooled) to proceed.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Place Order Now ➔';
+            const optCard = document.getElementById('opt-express-card');
+            if (optCard) optCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return;
+        }
+        const deliveryOption = deliveryOptRadio.value;
 
         const slotRadio = document.querySelector('input[name="selected_slot_id"]:checked');
+        if (deliveryOption === 'SCHEDULED_POOLED' && !slotRadio) {
+            errorDiv.textContent = '⚠️ Please select an available Smart Delivery window to proceed.';
+            errorDiv.style.display = 'block';
+            btn.disabled = false;
+            btn.textContent = 'Place Order Now ➔';
+            return;
+        }
         const slotId = (deliveryOption === 'SCHEDULED_POOLED' && slotRadio) ? parseInt(slotRadio.value) : null;
 
         // 3. Payment Method
