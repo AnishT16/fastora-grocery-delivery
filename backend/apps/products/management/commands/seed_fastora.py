@@ -1,3 +1,6 @@
+import os
+import urllib.request
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta, time
@@ -54,51 +57,240 @@ class Command(BaseCommand):
         # 3. Products & Inventory
         products_data = [
             # Groceries
-            {'cat': 'groceries', 'name': 'Amul Taaza Homogenised Toned Milk', 'unit': '1 L', 'price': 54.00, 'disc': 52.00, 'qty': 50},
-            {'cat': 'groceries', 'name': 'Aashirvaad Superior MP Sharbati Atta', 'unit': '5 Kg', 'price': 285.00, 'disc': 260.00, 'qty': 30},
-            {'cat': 'groceries', 'name': 'Tata Salt Vacuum Evaporated Iodised', 'unit': '1 Kg', 'price': 28.00, 'disc': 26.00, 'qty': 100},
-            {'cat': 'groceries', 'name': 'Fortune Sunlite Refined Sunflower Oil', 'unit': '1 L', 'price': 145.00, 'disc': 135.00, 'qty': 40},
-            {'cat': 'groceries', 'name': 'Amul Butter - Pasteurised', 'unit': '500 g', 'price': 275.00, 'disc': 265.00, 'qty': 35},
-            {'cat': 'groceries', 'name': 'Brown Bread Multi-Grain', 'unit': '400 g', 'price': 55.00, 'disc': 50.00, 'qty': 25},
+            {
+                'cat': 'groceries',
+                'name': 'Amul Taaza Homogenised Toned Milk',
+                'unit': '1 L',
+                'price': 54.00,
+                'disc': 52.00,
+                'qty': 50,
+                'img': 'https://images.unsplash.com/photo-1550583724-b2692b85b150?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'groceries',
+                'name': 'Aashirvaad Superior MP Sharbati Atta',
+                'unit': '5 Kg',
+                'price': 285.00,
+                'disc': 260.00,
+                'qty': 30,
+                'img': 'https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'groceries',
+                'name': 'Tata Salt Vacuum Evaporated Iodised',
+                'unit': '1 Kg',
+                'price': 28.00,
+                'disc': 26.00,
+                'qty': 100,
+                'img': 'https://images.unsplash.com/photo-1518110925495-5fe2fda0442c?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'groceries',
+                'name': 'Fortune Sunlite Refined Sunflower Oil',
+                'unit': '1 L',
+                'price': 145.00,
+                'disc': 135.00,
+                'qty': 40,
+                'img': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'groceries',
+                'name': 'Amul Butter - Pasteurised',
+                'unit': '500 g',
+                'price': 275.00,
+                'disc': 265.00,
+                'qty': 35,
+                'img': 'https://images.unsplash.com/photo-1589985270826-4b7bb135bc9d?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'groceries',
+                'name': 'Brown Bread Multi-Grain',
+                'unit': '400 g',
+                'price': 55.00,
+                'disc': 50.00,
+                'qty': 25,
+                'img': 'https://images.unsplash.com/photo-1509440159596-0249088772ff?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Fruits & Vegetables
-            {'cat': 'fruits', 'name': 'Fresh Royal Gala Apples', 'unit': '1 Kg (approx 4-5 pcs)', 'price': 180.00, 'disc': 165.00, 'qty': 45},
-            {'cat': 'fruits', 'name': 'Robusta Fresh Bananas', 'unit': '1 Dozen (12 pcs)', 'price': 60.00, 'disc': 50.00, 'qty': 60},
-            {'cat': 'fruits', 'name': 'Hybrid Red Tomatoes', 'unit': '1 Kg', 'price': 40.00, 'disc': 35.00, 'qty': 80},
-            {'cat': 'fruits', 'name': 'New Crop Fresh Potatoes', 'unit': '1 Kg', 'price': 35.00, 'disc': 30.00, 'qty': 100},
-            {'cat': 'fruits', 'name': 'Fresh Red Onions', 'unit': '1 Kg', 'price': 45.00, 'disc': 40.00, 'qty': 90},
+            {
+                'cat': 'fruits',
+                'name': 'Fresh Royal Gala Apples',
+                'unit': '1 Kg (approx 4-5 pcs)',
+                'price': 180.00,
+                'disc': 165.00,
+                'qty': 45,
+                'img': 'https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'fruits',
+                'name': 'Robusta Fresh Bananas',
+                'unit': '1 Dozen (12 pcs)',
+                'price': 60.00,
+                'disc': 50.00,
+                'qty': 60,
+                'img': 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'fruits',
+                'name': 'Hybrid Red Tomatoes',
+                'unit': '1 Kg',
+                'price': 40.00,
+                'disc': 35.00,
+                'qty': 80,
+                'img': 'https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'fruits',
+                'name': 'New Crop Fresh Potatoes',
+                'unit': '1 Kg',
+                'price': 35.00,
+                'disc': 30.00,
+                'qty': 100,
+                'img': 'https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'fruits',
+                'name': 'Fresh Red Onions',
+                'unit': '1 Kg',
+                'price': 45.00,
+                'disc': 40.00,
+                'qty': 90,
+                'img': 'https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Pharmacy
-            {'cat': 'pharmacy', 'name': 'Dolo 650 Paracetamol Tablets', 'unit': '15 Tablets Strip', 'price': 34.00, 'disc': 30.00, 'qty': 70},
-            {'cat': 'pharmacy', 'name': 'Dettol Antiseptic Liquid', 'unit': '250 ml', 'price': 135.00, 'disc': 125.00, 'qty': 30},
-            {'cat': 'pharmacy', 'name': 'Band-Aid Spot Adhesive Bandages', 'unit': '20 Strips Pack', 'price': 50.00, 'disc': 45.00, 'qty': 50},
+            {
+                'cat': 'pharmacy',
+                'name': 'Dolo 650 Paracetamol Tablets',
+                'unit': '15 Tablets Strip',
+                'price': 34.00,
+                'disc': 30.00,
+                'qty': 70,
+                'img': 'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'pharmacy',
+                'name': 'Dettol Antiseptic Liquid',
+                'unit': '250 ml',
+                'price': 135.00,
+                'disc': 125.00,
+                'qty': 30,
+                'img': 'https://images.unsplash.com/photo-1584744982491-665216d95f8b?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'pharmacy',
+                'name': 'Band-Aid Spot Adhesive Bandages',
+                'unit': '20 Strips Pack',
+                'price': 50.00,
+                'disc': 45.00,
+                'qty': 50,
+                'img': 'https://images.unsplash.com/photo-1603398938378-e54eab446dde?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Electronics
-            {'cat': 'electronics', 'name': 'boAt Bassheads 100 Wired Earphones', 'unit': '1 Unit', 'price': 399.00, 'disc': 349.00, 'qty': 20},
-            {'cat': 'electronics', 'name': 'Fastora Type-C Braided Cable 65W', 'unit': '1.2 Meter', 'price': 199.00, 'disc': 149.00, 'qty': 40},
+            {
+                'cat': 'electronics',
+                'name': 'boAt Bassheads 100 Wired Earphones',
+                'unit': '1 Unit',
+                'price': 399.00,
+                'disc': 349.00,
+                'qty': 20,
+                'img': 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'electronics',
+                'name': 'Fastora Type-C Braided Cable 65W',
+                'unit': '1.2 Meter',
+                'price': 199.00,
+                'disc': 149.00,
+                'qty': 40,
+                'img': 'https://images.unsplash.com/photo-1583863788434-e58a36330cf0?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Beauty
-            {'cat': 'beauty', 'name': 'Himalaya Purifying Neem Face Wash', 'unit': '150 ml', 'price': 165.00, 'disc': 145.00, 'qty': 35},
-            {'cat': 'beauty', 'name': 'Dove Deep Moisture Body Wash', 'unit': '200 ml', 'price': 190.00, 'disc': 170.00, 'qty': 25},
+            {
+                'cat': 'beauty',
+                'name': 'Himalaya Purifying Neem Face Wash',
+                'unit': '150 ml',
+                'price': 165.00,
+                'disc': 145.00,
+                'qty': 35,
+                'img': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'beauty',
+                'name': 'Dove Deep Moisture Body Wash',
+                'unit': '200 ml',
+                'price': 190.00,
+                'disc': 170.00,
+                'qty': 25,
+                'img': 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Kids
-            {'cat': 'kids', 'name': 'Pampers All Round Protection Diapers M', 'unit': '32 Pants', 'price': 499.00, 'disc': 449.00, 'qty': 15},
-            {'cat': 'kids', 'name': 'Faber-Castell Wax Crayons', 'unit': '24 Shades Pack', 'price': 90.00, 'disc': 80.00, 'qty': 30},
+            {
+                'cat': 'kids',
+                'name': 'Pampers All Round Protection Diapers M',
+                'unit': '32 Pants',
+                'price': 499.00,
+                'disc': 449.00,
+                'qty': 15,
+                'img': 'https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&w=600&q=80'
+            },
+            {
+                'cat': 'kids',
+                'name': 'Faber-Castell Wax Crayons',
+                'unit': '24 Shades Pack',
+                'price': 90.00,
+                'disc': 80.00,
+                'qty': 30,
+                'img': 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80'
+            },
 
             # Gifting
-            {'cat': 'gifting', 'name': 'Cadbury Celebrations Rich Dry Fruit Box', 'unit': '177 g Box', 'price': 250.00, 'disc': 225.00, 'qty': 25},
+            {
+                'cat': 'gifting',
+                'name': 'Cadbury Celebrations Rich Dry Fruit Box',
+                'unit': '177 g Box',
+                'price': 250.00,
+                'disc': 225.00,
+                'qty': 25,
+                'img': 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=600&q=80'
+            },
         ]
+
+        media_products_dir = settings.MEDIA_ROOT / 'products'
+        os.makedirs(media_products_dir, exist_ok=True)
 
         for p in products_data:
             cat = cat_objs[p['cat']]
-            prod, _ = Product.objects.get_or_create(
+            prod, _ = Product.objects.update_or_create(
                 name=p['name'],
                 defaults={
                     'category': cat,
                     'unit': p['unit'],
+                    'image_url': p.get('img', ''),
                     'description': f"Premium quality {p['name']} delivered fresh to your doorstep.",
                 }
             )
+
+            # Check if local image exists or needs to be set
+            local_filename = f"{prod.slug}.jpg"
+            local_path = media_products_dir / local_filename
+            if local_path.exists():
+                prod.image = f"products/{local_filename}"
+                prod.save(update_fields=['image'])
+            elif p.get('img'):
+                try:
+                    req = urllib.request.Request(p['img'], headers={'User-Agent': 'Mozilla/5.0'})
+                    with urllib.request.urlopen(req, timeout=8) as r:
+                        with open(local_path, 'wb') as f:
+                            f.write(r.read())
+                    prod.image = f"products/{local_filename}"
+                    prod.save(update_fields=['image'])
+                except Exception:
+                    pass
             # Create or update Inventory
             inv, _ = Inventory.objects.update_or_create(
                 product=prod,
@@ -158,22 +350,19 @@ class Command(BaseCommand):
 
         # 5. Delivery Slots (Today & Tomorrow for all Pune Zones)
         today = timezone.localdate()
+        # Close past date slots
+        DeliverySlot.objects.filter(date__lt=today).update(status=DeliverySlot.STATUS_CLOSED)
         for zone in active_zones:
             for day_offset in [0, 1]:
                 slot_date = today + timedelta(days=day_offset)
-                slot_windows = [
-                    (time(8, 0), time(10, 0), time(7, 30)),
-                    (time(10, 0), time(12, 0), time(9, 30)),
-                    (time(13, 0), time(15, 0), time(12, 30)),
-                    (time(16, 0), time(18, 0), time(15, 30)),
-                    (time(18, 0), time(20, 0), time(17, 30)),
-                    (time(20, 0), time(22, 0), time(19, 30)),
-                ]
-                for start_t, end_t, cutoff_t in slot_windows:
-                    cutoff_dt = timezone.make_aware(
-                        timezone.datetime.combine(slot_date, cutoff_t),
+                for start_hour in range(7, 22):
+                    start_t = time(start_hour, 0)
+                    end_t = time(start_hour + 1, 0)
+                    slot_start_dt = timezone.make_aware(
+                        timezone.datetime.combine(slot_date, start_t),
                         timezone.get_current_timezone()
                     )
+                    cutoff_dt = slot_start_dt - timedelta(minutes=15)
                     DeliverySlot.objects.get_or_create(
                         zone=zone,
                         date=slot_date,

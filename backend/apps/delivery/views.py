@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.db import transaction
@@ -52,8 +52,13 @@ def delivery_check_view(request):
         quote_pooled = calculate_delivery_quote({'postal_code': postal_code}, subtotal, 'SCHEDULED_POOLED', user=request.user)
         savings = round(quote_express['final_fee'] - quote_pooled['final_fee'], 2)
 
-        tomorrow = timezone.localdate() + timedelta(days=1)
-        slots = get_available_slots(zone.id, target_date=tomorrow)
+        today = timezone.localdate()
+        today_slots = list(get_available_slots(zone.id, target_date=today))
+        if today_slots:
+            slots = today_slots
+        else:
+            tomorrow = today + timedelta(days=1)
+            slots = list(get_available_slots(zone.id, target_date=tomorrow))
     except ZoneNotServiceableError as e:
         error_msg = str(e)
 
@@ -66,6 +71,7 @@ def delivery_check_view(request):
         'quote_pooled': quote_pooled,
         'savings': savings,
         'slots': slots,
+        'today': timezone.localdate(),
     }
     return render(request, 'delivery/check.html', context)
 
@@ -105,8 +111,20 @@ class DeliverySlotsAPIView(APIView):
         if not zone_id:
             return Response({'error': 'No active zone found'}, status=status.HTTP_404_NOT_FOUND)
 
-        tomorrow = timezone.localdate() + timedelta(days=1)
-        slots = get_available_slots(int(zone_id), target_date=tomorrow)
+        today = timezone.localdate()
+        target_date_param = request.query_params.get('date')
+        if target_date_param:
+            try:
+                target_date = datetime.strptime(target_date_param, '%Y-%m-%d').date()
+            except ValueError:
+                target_date = today
+            slots = list(get_available_slots(int(zone_id), target_date=target_date))
+        else:
+            # Prioritize today's remaining rolling 1-2 hour slots
+            slots = list(get_available_slots(int(zone_id), target_date=today))
+            if not slots:
+                tomorrow = today + timedelta(days=1)
+                slots = list(get_available_slots(int(zone_id), target_date=tomorrow))
 
         data = [{
             'id': s.id,

@@ -113,10 +113,16 @@
 
         <!-- Available Scheduled Windows -->
         <div style="background: white; padding: 22px 25px; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 25px;">
-            <h3 style="margin-top: 0; color: #0a2540; font-size: 17px;">Available Delivery Windows for Tomorrow</h3>
+            <div style="display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 15px; flex-wrap: wrap; gap: 8px;">
+                <h3 style="margin: 0; color: #0a2540; font-size: 17px;">Available Smart Delivery Windows (Max 1–2 Hours)</h3>
+                <span style="font-size: 12px; color: #007a4d; font-weight: 700; background: #e6f7ef; padding: 3px 10px; border-radius: 6px;">⚡ Same-Day Micro-Batch Delivery</span>
+            </div>
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px;">
                 {% for slot in slots %}
-                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; text-align: center;">
+                    <div style="border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px; text-align: center; position: relative;">
+                        <div style="font-size: 11px; font-weight: 800; color: {% if slot.date == today %}#007a4d; background: #e6f7ef;{% else %}#475569; background: #f1f5f9;{% endif %} display: inline-block; padding: 2px 7px; border-radius: 5px; margin-bottom: 5px;">
+                            {% if slot.date == today %}Today (1–2 Hrs){% else %}Tomorrow{% endif %}
+                        </div>
                         <div style="font-weight: 800; color: #0a2540; font-size: 15px;">{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</div>
                         <div style="font-size: 12px; color: #666; margin-top: 4px;">Capacity: {{ slot.current_bookings }}/{{ slot.max_capacity }} booked</div>
                         <div style="display: inline-block; margin-top: 6px; font-size: 11px; font-weight: 700; color: #007a4d; background: #e6f7ef; padding: 2px 8px; border-radius: 10px;">
@@ -124,7 +130,7 @@
                         </div>
                     </div>
                 {% empty %}
-                    <p style="color: #888;">No slots scheduled for tomorrow yet.</p>
+                    <p style="color: #888;">No active delivery slots available for today.</p>
                 {% endfor %}
             </div>
         </div>

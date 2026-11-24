@@ -48,6 +48,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'category',
             'category_id',
             'image',
+            'image_url',
             'is_active',
             'price',
             'quantity_available',
