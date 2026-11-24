@@ -31,7 +31,7 @@ def ensure_rolling_slots(zone_id):
             cutoff_dt = slot_start_dt - timedelta(minutes=15)
 
             if cutoff_dt > now:
-                DeliverySlot.objects.get_or_create(
+                slot, created = DeliverySlot.objects.get_or_create(
                     zone=zone,
                     date=slot_date,
                     start_time=start_t,
@@ -43,6 +43,10 @@ def ensure_rolling_slots(zone_id):
                         'status': DeliverySlot.STATUS_OPEN
                     }
                 )
+                if not created and (slot.cutoff_time != cutoff_dt or (slot.status == DeliverySlot.STATUS_CLOSED and slot.current_bookings < slot.max_capacity)):
+                    slot.cutoff_time = cutoff_dt
+                    slot.status = DeliverySlot.STATUS_OPEN
+                    slot.save(update_fields=['cutoff_time', 'status'])
 
 
 def get_available_slots(zone_id, target_date=None):

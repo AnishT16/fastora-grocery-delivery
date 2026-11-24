@@ -158,6 +158,8 @@ class Command(BaseCommand):
 
         # 5. Delivery Slots (Today & Tomorrow for all Pune Zones)
         today = timezone.localdate()
+        # Close past date slots
+        DeliverySlot.objects.filter(date__lt=today).update(status=DeliverySlot.STATUS_CLOSED)
         for zone in active_zones:
             for day_offset in [0, 1]:
                 slot_date = today + timedelta(days=day_offset)
